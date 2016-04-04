@@ -458,7 +458,7 @@
     // Individual mute button /u/verox-
     var mutedList = settings.mutedUsersList || [];
     $('body').on('click', ".robin--username", function() {
-        var username = $(this).text();
+        var username = $(this).text().replace("<","").replace(">","");
         var clickedUser = mutedList.indexOf(username);
 
         if (clickedUser == -1) {
@@ -536,7 +536,7 @@
                 // cool we have a message.
                 var $timestamp = $(jq[0] && jq[0].children[0]);
                 var $user = $(jq[0].children && jq[0].children[1]);
-                var thisUser = $(jq[0].children && jq[0].children[1]).text();
+                var thisUser = $(jq[0].children && jq[0].children[1]).text().replace("<","").replace(">","");
                 var $message = $(jq[0].children && jq[0].children[2]);
                 var messageText = $message.text();
                 var firstCharOfNick = $(".robin-message--from:last").text().charAt(0);
@@ -555,9 +555,6 @@
                         String(settings.channel).length > 0 &&
                         !results_chan.has);
 
-
-                if(nextIsRepeat && jq.hasClass('robin--user-class--system')) {
-                }
                 var nextIsRepeat = jq.hasClass('robin--user-class--system') && messageText.indexOf("try again") >= 0;
                 if(nextIsRepeat) {
                     $(".text-counter-input").val(jq.next().find(".robin-message--message").text());
