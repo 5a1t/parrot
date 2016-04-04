@@ -539,6 +539,7 @@
                 var thisUser = $(jq[0].children && jq[0].children[1]).text();
                 var $message = $(jq[0].children && jq[0].children[2]);
                 var messageText = $message.text();
+                var firstCharOfNick = $(".robin-message--from:last").text().charAt(0);
 
                 if(String(settings['username_bg']).length > 0) {
                     $user.css("background",  String(settings['username_bg']));
@@ -576,7 +577,7 @@
                             .insertAfter($timestamp);
                     }
                     
-                    if ($(".robin-message--from:last").text().charAt(0) != "<") {
+                    if (firstCharOfNick != "<") {
                         $(".robin-message--from:last").prepend("<").append(">");
                     }
                     
