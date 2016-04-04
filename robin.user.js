@@ -35,14 +35,14 @@
             var new_channel = String($('option:selected', this).text()).toLowerCase().trim();
             var source = String($(".text-counter-input").val()).toLowerCase();
 
-            CURRENT_CHANNEL = String(CURRENT_CHANNEL).trim();
+            CURRENT_CHANNEL = String(CURRENT_CHANNEL);
 
             if(CURRENT_CHANNEL.length > 0 && source.startsWith(CURRENT_CHANNEL)) {
                 source = source.substring(CURRENT_CHANNEL.length);
                 source = source.startsWith(" ") ? source.substring(1) : source;
             }
 
-            CURRENT_CHANNEL = new_channel;
+            CURRENT_CHANNEL = new_channel.trim();
 
             $(".text-counter-input").val(new_channel + " " + source);
         });
@@ -238,17 +238,14 @@
     buildDropdown();
 
     // hacky solution
-    CURRENT_CHANNEL = $("#chat-prepend-select").val().trim();
+    CURRENT_CHANNEL = $("#chat-prepend-select").val();
 
     if(settings.channelPrepend){
        $(".text-counter-input").val(settings.filterChannel? $("#chat-prepend-select").val() + " " :"");
     }
     $(".text-counter-input").keyup(function(e) {
-
-        var channel_needle = $("#chat-prepend-select").val().trim();
-
-        if(settings.filterChannel && $(".text-counter-input").val().indexOf(channel_needle) != 0 && settings.channelPrepend) {
-            $(".text-counter-input").val(channel_needle +" "+$(".text-counter-input").val());
+        if(settings.filterChannel && $(".text-counter-input").val().indexOf($("#chat-prepend-select").val()) != 0 && settings.channelPrepend) {
+            $(".text-counter-input").val($("#chat-prepend-select").val()+" "+$(".text-counter-input").val());
         }
     });
 
@@ -262,7 +259,7 @@
             if(settings.channelPrepend){
 
                 setTimeout(function() {
-                    $(".text-counter-input").val($("#chat-prepend-select").val().trim() +" ");
+                    $(".text-counter-input").val($("#chat-prepend-select").val()+" ");
                 }, 10);
             }
                 }
@@ -575,9 +572,10 @@
                             $message.text(messageText.substring(results_chan.name.length).trim());
                         }
 
-                        $("<span class='robin-message--from'><strong>" + results_chan.name + "</strong></span>")
+                        $("<span class='robin-message--timestamp' style='padding-left:5px;'><strong>[" + results_chan.name.toUpperCase() + "]</strong></span>")
                             .insertAfter($timestamp);
                     }
+                    
                     if (messageText.toLowerCase().indexOf(currentUsersName.toLowerCase()) !== -1) {
                         $message.parent().css("background","#FFA27F");
                         notifAudio.play();
