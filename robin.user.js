@@ -252,6 +252,7 @@
     Settings.addBool("removeSpam", "Remove bot spam", true);
     Settings.addBool("enableUnicode", "Allow unicode characters. Unicode is considered spam and thus are filtered out.", false);
     Settings.addBool("findAndHideSpam", "Remove messages that have been sent more than 3 times", true);
+    Settings.addInput("formatStyle", "'mIRC' or 'xChat' style formatting (defaults to 'mIRC')", "mIRC");
     Settings.addInput("maxprune", "Max messages before pruning", "500");
     Settings.addInput("fontsize", "Chat font size", "12");
     Settings.addInput("username_bg", "Background color of usernames (leave blank to disable)", "");
@@ -499,7 +500,7 @@
     // Individual mute button /u/verox-
     var mutedList = settings.mutedUsersList || [];
     $('body').on('click', ".robin--username", function() {
-        var username = String($(this).text()).trim();
+        var username = String($(this).text().replace("<","").replace(">","")).trim();
         var clickedUser = mutedList.indexOf(username);
 
         if (clickedUser == -1) {
@@ -577,17 +578,20 @@
                 // cool we have a message.
                 var $timestamp = $(jq[0] && jq[0].children[0]);
                 var $user = $(jq[0].children && jq[0].children[1]);
-                var thisUser = $(jq[0].children && jq[0].children[1]).text();
+                var thisUser = $(jq[0].children && jq[0].children[1]).text().replace("<","").replace(">","");
                 var $message = $(jq[0].children && jq[0].children[2]);
                 var messageText = $message.text();
+                var firstCharOfNick = $(".robin-message--from:last").text().charAt(0);
 
                 if(String(settings['username_bg']).length > 0) {
                     $user.css("background",  String(settings['username_bg']));
                 }
 
-                $user.html($user.html().lpad('&nbsp;', 20));
-                $user.css("font-family", '"Lucida Console", Monaco, monospace').css("font-size", settings.fontsize+"px");
-                $message.css("font-family", '"Lucida Console", Monaco, monospace').css("font-size", settings.fontsize+"px");
+                if (settings.formatStyle.toLowerCase() == "xchat") {
+                    $user.html($user.html().lpad('&nbsp;', 20));
+                    $user.css("font-family", '"Lucida Console", Monaco, monospace').css("font-size", settings.fontsize+"px");
+                    $message.css("font-family", '"Lucida Console", Monaco, monospace').css("font-size", settings.fontsize+"px");
+                }
 
 
                 var is_muted = (mutedList.indexOf(thisUser) >= 0);
@@ -644,10 +648,18 @@
                     if(results_chan.has) {
                         $message.text(messageText.substring(results_chan.name.length).trim());
                     }
-
-                    $("<span class='robin-message--from'><strong>" + results_chan.name.lpad("&nbsp", 6) + "</strong></span>").css("font-family", '"Lucida Console", Monaco, monospace')
-                        .css("font-size", "12px")
-                        .insertAfter($timestamp);
+                    if (settings.formatStyle.toLowerCase() == "xchat") {
+                        $("<span class='robin-message--from'><strong>" + results_chan.name.lpad("&nbsp", 6) + "</strong></span>").css("font-family", '"Lucida Console", Monaco, monospace')
+                            .css("font-size", "12px")
+                            .insertAfter($timestamp);
+                    }
+                    else {
+                        $("<span class='robin-message--timestamp' style='padding-left:5px;'><strong>[" + results_chan.name.toUpperCase() + "]</strong></span>")
+                              .insertAfter($timestamp);
+                    }
+                }
+                if (settings.formatStyle.toLowerCase() != "xchat" && firstCharOfNick != "<") {
+                        $(".robin-message--from:last").prepend("<").append(">");
                 }
 
                 if(urlRegex.test(messageText)) {
