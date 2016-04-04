@@ -576,6 +576,10 @@
                             .insertAfter($timestamp);
                     }
                     
+                    if ($(".robin-message--from:last").charAt(0) != "<") {
+                        $(".robin-message--from:last").prepend("<").append(">");
+                    }
+                    
                     if (messageText.toLowerCase().indexOf(currentUsersName.toLowerCase()) !== -1) {
                         $message.parent().css("background","#FFA27F");
                         notifAudio.play();
