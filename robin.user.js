@@ -576,7 +576,7 @@
                             .insertAfter($timestamp);
                     }
                     
-                    if ($(".robin-message--from:last").charAt(0) != "<") {
+                    if ($(".robin-message--from:last").text().charAt(0) != "<") {
                         $(".robin-message--from:last").prepend("<").append(">");
                     }
                     
