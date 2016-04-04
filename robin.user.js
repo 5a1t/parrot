@@ -570,7 +570,13 @@
 
                 remove_message = remove_message && !jq.hasClass("robin--user-class--system");
 
-                if(!remove_message) {
+                if (remove_message) {
+
+                    $message = null;
+                    $(jq[0]).remove();
+
+                    return;
+                } else {
                     // username mention
 
                     if (messageText.toLowerCase().indexOf(currentUsersName.toLowerCase()) !== -1) {
