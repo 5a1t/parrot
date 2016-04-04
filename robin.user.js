@@ -572,9 +572,10 @@
                             $message.text(messageText.substring(results_chan.name.length).trim());
                         }
 
-                        $("<span class='robin-message--from' style='color:#D1D0CE;'><strong>[" + results_chan.name + "]</strong></span>")
+                        $("<span class='robin-message--from' style='color:#C0C0C0;'><strong>[" + results_chan.name + "]</strong></span>")
                             .insertAfter($timestamp);
                     }
+                    
                     if (messageText.toLowerCase().indexOf(currentUsersName.toLowerCase()) !== -1) {
                         $message.parent().css("background","#FFA27F");
                         notifAudio.play();
