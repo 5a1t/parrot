@@ -572,7 +572,7 @@
                             $message.text(messageText.substring(results_chan.name.length).trim());
                         }
 
-                        $("<span class='robin-message--from' style='color:#C0C0C0;'><strong>[" + results_chan.name + "]</strong></span>")
+                        $("<span class='robin-message--timestamp' style='padding-left:5px;'><strong>[" + results_chan.name.toUpperCase() + "]</strong></span>")
                             .insertAfter($timestamp);
                     }
                     
