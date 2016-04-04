@@ -549,38 +549,35 @@
 
                 var results_chan = hasChannel(messageText, settings.channel);
 
-                var remove_message =
-                    (mutedList.indexOf(thisUser) >= 0) ||
-                    (settings.removeSpam && isBotSpam(messageText)) ||
-                    (settings.filterChannel &&
-                        !jq.hasClass('robin--user-class--system') &&
-                        String(settings.channel).length > 0 &&
-                        !results_chan.has);
+                var is_muted = (mutedList.indexOf(thisUser) >= 0);
+                var is_spam = (settings.removeSpam && isBotSpam(messageText));
+                var is_not_in_channel = (settings.filterChannel &&
+                                            !jq.hasClass('robin--user-class--system') &&
+                                            String(settings.channel).length > 0 &&
+                                            !hasChannel(messageText, settings.channel));
+
+                var remove_message = is_muted || is_spam;
 
 
-                if(nextIsRepeat && jq.hasClass('robin--user-class--system')) {
-                }
+
+                // if(nextIsRepeat && jq.hasClass('robin--user-class--system')) {
+                // }
+
                 var nextIsRepeat = jq.hasClass('robin--user-class--system') && messageText.indexOf("try again") >= 0;
                 if(nextIsRepeat) {
                     $(".text-counter-input").val(jq.next().find(".robin-message--message").text());
                 }
 
                 remove_message = remove_message && !jq.hasClass("robin--user-class--system");
-                if (remove_message) {
-                    $message = null;
-                    $(jq[0]).remove();
-                } else {
-                    if(settings.filterChannel) {
-                        if(messageText.indexOf(results_chan.name) == 0) {
-                            $message.text(messageText.substring(results_chan.name.length).trim());
-                        }
 
-                        $("<span class='robin-message--from'><strong>" + results_chan.name + "</strong></span>")
-                            .insertAfter($timestamp);
-                    }
+                if(!remove_message) {
+                    // username mention
+
                     if (messageText.toLowerCase().indexOf(currentUsersName.toLowerCase()) !== -1) {
                         $message.parent().css("background","#FFA27F");
                         notifAudio.play();
+
+                        remove_message = false;
                     } else {
 
                         //still show mentions in highlight color.
@@ -589,19 +586,44 @@
 
                         if(result.has && result.name in colors_match) {
                             $message.parent().css("background", colors_match[result.name]);
+
+                            remove_message = false;
+                        } else {
+                            remove_message = is_not_in_channel;
                         }
                     }
-
-                    if(urlRegex.test(messageText)) {
-                        urlRegex.lastIndex = 0;
-                        var url = encodeURI(urlRegex.exec(messageText)[0]);
-                        var parsedUrl = url.replace(/^/, "<a target=\"_blank\" href=\"").replace(/$/, "\">"+url+"</a>");
-                        var oldHTML = $(jq[0]).find('.robin-message--message').html();
-                        var newHTML = oldHTML.replace(url, parsedUrl);
-                        $(jq[0]).find('.robin-message--message').html(newHTML);
-                    }
-                    findAndHideSpam();
                 }
+
+
+                if (remove_message) {
+
+                    $message = null;
+                    $(jq[0]).remove();
+
+                    return;
+                }
+
+                if(settings.filterChannel) {
+                    if(messageText.indexOf(results_chan.name) == 0) {
+                        $message.text(messageText.substring(results_chan.name.length).trim());
+                    }
+
+                    $("<span class='robin-message--from'><strong>" + results_chan.name + "</strong></span>")
+                        .insertAfter($timestamp);
+                }
+
+
+                if(urlRegex.test(messageText)) {
+                    urlRegex.lastIndex = 0;
+                    var url = encodeURI(urlRegex.exec(messageText)[0]);
+                    var parsedUrl = url.replace(/^/, "<a target=\"_blank\" href=\"").replace(/$/, "\">"+url+"</a>");
+                    var oldHTML = $(jq[0]).find('.robin-message--message').html();
+                    var newHTML = oldHTML.replace(url, parsedUrl);
+                    $(jq[0]).find('.robin-message--message').html(newHTML);
+                }
+
+                findAndHideSpam();
+
             }
         });
     }
