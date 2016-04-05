@@ -982,16 +982,16 @@
     //
     function updateMessage()
     {
-        var chanName = selChanName();
+        var chanPrefix = (selChanName() + " ").trim();
         var source = $("#robinMessageTextAlt").val();
         var dest = $("#robinMessageText");
 
         if (source.startsWith("/me "))
-            dest.val("/me " + chanName + " " + source.substring(4));
+            dest.val("/me " + chanPrefix + source.substring(4));
         else if (source.startsWith("/"))
             dest.val(source);
         else
-            dest.val(chanName + " " + source);
+            dest.val(chanPrefix + source);
     }
 
     var pastMessageQueue = [];
