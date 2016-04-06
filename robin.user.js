@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         parrot (color multichat for robin!)
 // @namespace    http://tampermonkey.net/
-// @version      3.28
+// @version      3.30
 // @description  Recreate Slack on top of an 8 day Reddit project.
 // @author       dashed, voltaek, daegalus, vvvv, orangeredstilton, lost_penguin, AviN456, Annon201
 // @include      https://www.reddit.com/robin*
@@ -796,16 +796,21 @@
             var $messages = getChannelMessageList(len).find(".robin-message");
 
             var maxprune = parseInt(settings.maxprune || "1000", 10);
+
             if (isNaN(maxprune)) {
                 maxprune = 1000;
             }
+
+	    if ( maxprune <= 0){
+		maxprune = 1;
+
+	    }
 
 	    //console.log("maxprune:  " + maxprune + "  Messages.length: " + $messages.length + " len: " + len) ;
 
 	    
 
             if ($messages.length > maxprune) {
-		console.log("pruning!");
                 $messages.slice(0, $messages.length - maxprune).remove();
             }
         }
@@ -994,6 +999,9 @@
 
         // Add rooms
         resetChannels();
+
+        // Restore the selected channel in the url
+        if (channelList[window.location.hash.charAt(8)]) selectChannel(window.location.hash);
     }
 
     function resetChannels()
@@ -1232,8 +1240,8 @@
 
     function onMessageBoxKeyUp(e)
     {
-        var key = e.keyCode ? e.keyCode : e.charCode
-	key = key || e.which;
+        var key = e.keyCode ? e.keyCode : e.charCode;
+        key = key || e.which;
 
         if (key != 9 && key != 38 && key != 40)
             return;
@@ -1248,7 +1256,7 @@
         var namePart = "";
 
         // Tab - Auto Complete
-        if (settings.enableTabComplete && key == 9 && source.toLowerCase().startsWith(chanName.toLowerCase())) {
+        if (settings.enableTabComplete && key == 9 && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey && source.toLowerCase().startsWith(chanName.toLowerCase()) && sourceAlt !== '') {
             sourceAlt = source.substring(chanName.length).trim();
             var space=sourceAlt.lastIndexOf(" ");
             namePart = sourceAlt.substring(space).trim();
