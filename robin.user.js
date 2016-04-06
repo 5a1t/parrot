@@ -1236,8 +1236,8 @@
 
     function onMessageBoxKeyUp(e)
     {
-        var key = e.keyCode ? e.keyCode : e.charCode
-	key = key || e.which;
+        var key = e.keyCode ? e.keyCode : e.charCode;
+        key = key || e.which;
 
         if (key != 9 && key != 38 && key != 40)
             return;
@@ -1252,7 +1252,7 @@
         var namePart = "";
 
         // Tab - Auto Complete
-        if (settings.enableTabComplete && key == 9 && source.toLowerCase().startsWith(chanName.toLowerCase())) {
+        if (settings.enableTabComplete && key == 9 && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey && source.toLowerCase().startsWith(chanName.toLowerCase()) && sourceAlt !== '') {
             sourceAlt = source.substring(chanName.length).trim();
             var space=sourceAlt.lastIndexOf(" ");
             namePart = sourceAlt.substring(space).trim();
