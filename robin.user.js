@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         parrot (color multichat for robin!)
 // @namespace    http://tampermonkey.net/
-// @version      3.29
+// @version      3.30
 // @description  Recreate Slack on top of an 8 day Reddit project.
 // @author       dashed, voltaek, daegalus, vvvv, orangeredstilton, lost_penguin, AviN456, Annon201
 // @include      https://www.reddit.com/robin*
@@ -797,13 +797,14 @@
 
             var maxprune = parseInt(settings.maxprune || "1000", 10);
 
+            if (isNaN(maxprune)) {
+                maxprune = 1000;
+            }
+
 	    if ( maxprune <= 0){
 		maxprune = 1;
 
 	    }
-            if (isNaN(maxprune)) {
-                maxprune = 1000;
-            }
 
 	    //console.log("maxprune:  " + maxprune + "  Messages.length: " + $messages.length + " len: " + len) ;
 
