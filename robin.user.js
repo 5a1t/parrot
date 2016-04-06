@@ -1447,9 +1447,13 @@
             }
         });
     }
-
     function countTimer(){
         counter+=0.5;
+        if(countdown%1==0 && countdown !=0){
+            $('#sendBtn').css('background-color', '#FF5555');
+        }else{
+            $('#sendBtn').css('background-color', 'white');
+        }
         if(countdown>1){
             countdown-=0.5;
             $('#sendBtn').html("Chat in: "+parseInt(countdown));
@@ -1460,6 +1464,7 @@
         }
 
     }
+	
     setInterval(update, 10000);
     update();
 
