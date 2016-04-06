@@ -1544,16 +1544,20 @@
             //sanitise before eval
             for (i=0; i < splitChord.length; i++) {
                 splitChord[i] = splitChord[i].replace(/([^0-9\|&!])/g,'');
+                if (splitChord[i].includes("||") splitChord[i] = "(" + splitChord[i] + ")";
             }
-
-            joinedEval = "(e.keycode == (" + splitChord.join(")) && (e.keycode == (") + "))";
-
+            
+            joinedEval = "((e.keyValue == ";
+            joinedEval += splitChord[0];
+            for (i=1; i < splitChord.length; i++) {
+                joinedEval += ") && (";
+                joinedEval += "e.keyValue == ";
+                joinedEval += splitChord[i];
+            }
+            joinedEval += "))";
             return joinedEval;
         }
-        else {
-            return false;
-        }
-    }
+    };
 
     $(document).keydown(function(e) {
         if (!settings.enableQuickTabNavigation) return; // Is quicknav enabled
@@ -1564,19 +1568,17 @@
         var rKeycode = 39; // set the keycodes to default
 
         if (settings.enableAdvancedNaviOptions) { // are we using advanced settings
-            if (eval(generateKeyCodeEval())) { // hopefully this eval'd right
+            if (eval(generateKeyCodeEval()) == false) { // hopefully this eval'd right
                 return;
             }
-
             lKeycode = settings.quickTabNaviKeyLeft; // if we made it this far set the new keycodes
             rKeycode = settings.quickTabNaviKeyRight;
         }
-        else { // using original keycodes
-            if (!((e.metaKey || e.ctrlKey) && e.shiftKey)) {
+        else { // using original keycodes 
+            if (((e.metaKey || e.ctrlKey) && e.shiftKey) == false) {
                 return;
             }
         }
-
 
 	var key = e.keyCode ? e.keyCode : e.charCode
 	key = key || e.which;
