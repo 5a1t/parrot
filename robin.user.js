@@ -1307,7 +1307,6 @@
 
                 // cool we have a message.
                 var $timestamp = $(jq[0]).find('.robin-message--timestamp');
-                $(jq[0]).
                 var $user = $(jq[0]).find('.robin--username');
                 if(! $user.length)
                 {
