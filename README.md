@@ -12,7 +12,6 @@ Special thanks to OrangeredStilton, Voltaek, Dashed, lost_penguin, Daegalus, Wak
 Install a userscript extension such as greasemonkey or tampermonkey:  
 Click here: http://tampermonkey.net
 
-
 Then, click this link to install the script:  
 https://github.com/5a1t/parrot/raw/master/robin.user.js
 
@@ -23,9 +22,6 @@ https://github.com/5a1t/parrot
 
 Feature Requests, Bug Reports, Questions, and Discussion:
 https://www.reddit.com/r/parrot_script/
-
-Old Public Suggestion / Bug List:
-http://piratepad.net/Zg3MJL40Qh
 
 ## Features
 1. Automatically votes "grow" in each round. Respects your current choice though. Hides vote buttons if you want.
