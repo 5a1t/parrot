@@ -999,6 +999,9 @@
 
         // Add rooms
         resetChannels();
+
+        // Restore the selected channel in the url
+        if (channelList[window.location.hash.charAt(8)]) selectChannel(window.location.hash);
     }
 
     function resetChannels()
