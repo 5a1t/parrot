@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         parrot (color multichat for robin!)
 // @namespace    http://tampermonkey.net/
-// @version      3.24
+// @version      3.28
 // @description  Recreate Slack on top of an 8 day Reddit project.
 // @author       dashed, voltaek, daegalus, vvvv, orangeredstilton, lost_penguin, AviN456, Annon201
 // @include      https://www.reddit.com/robin*
@@ -791,14 +791,21 @@
 
         while(len-- > -1) {
 
-            var $messages = getChannelTab(len).find(".robin-message");
+            //var $messages = getChannelTab(len).find(".robin-message");
+
+            var $messages = getChannelMessageList(len).find(".robin-message");
 
             var maxprune = parseInt(settings.maxprune || "1000", 10);
-            if (maxprune < 10 || isNaN(maxprune)) {
+            if (isNaN(maxprune)) {
                 maxprune = 1000;
             }
 
+	    //console.log("maxprune:  " + maxprune + "  Messages.length: " + $messages.length + " len: " + len) ;
+
+	    
+
             if ($messages.length > maxprune) {
+		console.log("pruning!");
                 $messages.slice(0, $messages.length - maxprune).remove();
             }
         }
@@ -1447,9 +1454,13 @@
             }
         });
     }
-
     function countTimer(){
         counter+=0.5;
+        if(countdown%1==0 && countdown !=0){
+            $('#sendBtn').css('background-color', '#FF5555');
+        }else{
+            $('#sendBtn').css('background-color', 'white');
+        }
         if(countdown>1){
             countdown-=0.5;
             $('#sendBtn').html("Chat in: "+parseInt(countdown));
@@ -1460,6 +1471,7 @@
         }
 
     }
+	
     setInterval(update, 10000);
     update();
 
