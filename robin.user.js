@@ -368,7 +368,7 @@
 													var nameColumn = $(row.get(2));
 													nameColumn.find('a').prop('target','_blank');
 													if (currentRoomName.startsWith(nameColumn.text().substring(0,6))) {
-														row.css('background-color', '#22bb45');
+														row.css('background-color', '#0e4e1c');
 													}
 													row.each(function(j) {if (j == 3 || j == 4 || j > 5) {
 														$(this).remove();
