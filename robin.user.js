@@ -1163,11 +1163,6 @@
         return dropdownChannel();
     }
 
-    function updateTextCounter()
-    {
-        $("#textCounterDisplayAlt").text(String(Math.max(140 - Math.floor($("#robinMessageText").val().length), 0)));
-    }
-
     //
     // Update the message prepared for sending to server
     //
@@ -1187,7 +1182,8 @@
         else
             dest.val(chanPrefix + source);
 
-        updateTextCounter();
+        // Use backbones jQuery to trigger an input event, causes update on TextCounter
+        Backbone.$("#robinMessageText").trigger("input");
     }
 
     var pastMessageQueue = [];
@@ -1501,12 +1497,15 @@
     // Message input box (hidden)
     $(".text-counter-input").attr("id", "robinMessageText");
 
-    $(".text-counter-display")
-      .css("display", "none")
-      .after('<span id="textCounterDisplayAlt">140</span>');
-
     $("#robinSendMessage").append('<input type="text" id="robinMessageTextAlt" class="c-form-control text-counter-input" name="messageAlt" autocomplete="off" maxlength="140" required="">');
     $("#robinMessageText").css("display", "none");
+
+    // Override TextCounter update method, uses channel filter in count
+    var originalTextCounterUpdate = r.ui.TextCounter.prototype.update;
+    r.ui.TextCounter.prototype.update = function() {
+        originalTextCounterUpdate.apply(this, [$("#robinMessageText").val()]);
+    }
+
     // Alternate message input box (doesn't show the channel prefixes)
     $("#robinMessageTextAlt").on("input", function() { updateMessage(); });
     $("#robinMessageTextAlt")
