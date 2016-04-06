@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         parrot (color multichat for robin!)
 // @namespace    http://tampermonkey.net/
-// @version      3.28
+// @version      3.29
 // @description  Recreate Slack on top of an 8 day Reddit project.
 // @author       dashed, voltaek, daegalus, vvvv, orangeredstilton, lost_penguin, AviN456, Annon201
 // @include      https://www.reddit.com/robin*
@@ -796,6 +796,11 @@
             var $messages = getChannelMessageList(len).find(".robin-message");
 
             var maxprune = parseInt(settings.maxprune || "1000", 10);
+
+	    if ( maxprune <= 0){
+		maxprune = 1;
+
+	    }
             if (isNaN(maxprune)) {
                 maxprune = 1000;
             }
@@ -805,7 +810,6 @@
 	    
 
             if ($messages.length > maxprune) {
-		console.log("pruning!");
                 $messages.slice(0, $messages.length - maxprune).remove();
             }
         }
