@@ -598,12 +598,16 @@
 
     Settings.addBool("enableTabComplete", "Tab Autocomplete usernames", true);
     Settings.addBool("enableQuickTabNavigation", "Keyboard channel-tabs navigation", true);
-    Settings.addBool("enableAdvancedNaviOptions", "<label>Keyboard navigation key remapping<br><br><span>FOR ADVANCED USERS ONLY</span><br>Window will refresh on click", false, function(){ location.reload(); });
-    if (settings.enableAdvancedNaviOptions) {
-        Settings.addInput("quickTabNaviKeysChord", "<ul><li><b>WARNING: FOR ADVANCED USERS ONLY. DO NOT MODIFY</b></li><li>Specify a comma separated list of keys to be held down for tab navigation, the boolean comparators '!' and '||' and can be used to build basic logical expressions</li><li>See <a href='https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyCode' target='_blank'>Mozilla.org's documentation</a> for list of key codes</li></ul><label>Chorded key-code combination</label>","17||224,16");
-        Settings.addInput("quickTabNaviKeyLeft", "<label>Navigate left tab final key code</label>","37");
-        Settings.addInput("quickTabNaviKeyRight", "<label>Navigate right tab final key code</label>","39");
-    }
+    Settings.addBool("enableAdvancedNaviOptions", "Keyboard navigation key remapping. Use custom settings below for switching channels instead:", false, function(){
+        $('input[name^=setting-quickTabNavi]').prop('disabled',!$('input[name=setting-enableAdvancedNaviOptions]').prop('checked'));
+    });
+    Settings.addBool("quickTabNaviCtrlRequired", "Ctrl", true);
+    Settings.addBool("quickTabNaviShiftRequired", "Shift", false);
+    Settings.addBool("quickTabNaviAltRequired", "Alt", true);
+    Settings.addBool("quickTabNaviMetaRequired", "Meta", false);
+    Settings.addInput("quickTabNaviKeyLeft", "Key codes: Left = 37, Up = 38, Right = 39, Down = 40. See <a href='https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyCode' target='_blank'>Mozilla.org's documentation</a> for more key codes.<br><br>Navigate left tab final key code","37");
+    Settings.addInput("quickTabNaviKeyRight", "Navigate right tab final key code","39");
+    $('input[name^=setting-quickTabNavi]').prop('disabled',!settings.enableAdvancedNaviOptions);
 
     $("#settingContent").append("<div class='robin-chat--sidebar-widget robin-chat--notification-widget'><label id='blockedUserContainer'>Muted Users (click to unmute)</label>");
     $("#blockedUserContainer").append("<div id='blockedUserList' class='robin-chat--sidebar-widget robin-chat--user-list-widget'></div>");
@@ -1538,24 +1542,6 @@
         GOTO_BOTTOM = true;
     });
 
-    function generateKeyCodeEval() {
-        if (settings.enableAdvancedNaviOptions) {
-            var splitChord = settings.quickTabNaviKeysChord.split(",");
-
-            //sanitise before eval
-            for (i=0; i < splitChord.length; i++) {
-                splitChord[i] = splitChord[i].replace(/([^0-9\|&!])/g,'');
-            }
-
-            joinedEval = "(e.keycode == (" + splitChord.join(")) && (e.keycode == (") + "))";
-
-            return joinedEval;
-        }
-        else {
-            return false;
-        }
-    }
-
     $(document).keydown(function(e) {
         if (!settings.enableQuickTabNavigation) return; // Is quicknav enabled
 
@@ -1565,15 +1551,24 @@
         var rKeycode = 39; // set the keycodes to default
 
         if (settings.enableAdvancedNaviOptions) { // are we using advanced settings
-            if (eval(generateKeyCodeEval())) { // hopefully this eval'd right
+            if (( settings.quickTabNaviCtrlRequired && !e.ctrlKey) ||
+                (!settings.quickTabNaviCtrlRequired &&  e.ctrlKey))
                 return;
-            }
+            if (( settings.quickTabNaviAltRequired && !e.altKey) ||
+                (!settings.quickTabNaviAltRequired &&  e.altKey))
+                return;
+            if (( settings.quickTabNaviShiftRequired && !e.shiftKey) ||
+                (!settings.quickTabNaviShiftRequired &&  e.shiftKey))
+                return;
+            if (( settings.quickTabNaviMetaRequired && !e.metaKey) ||
+                (!settings.quickTabNaviMetaRequired &&  e.metaKey))
+                return;
 
             lKeycode = settings.quickTabNaviKeyLeft; // if we made it this far set the new keycodes
             rKeycode = settings.quickTabNaviKeyRight;
         }
         else { // using original keycodes
-            if (!((e.metaKey || e.ctrlKey) && e.shiftKey)) {
+            if (!((e.metaKey || e.ctrlKey) && e.altKey)) {
                 return;
             }
         }
