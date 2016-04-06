@@ -1568,7 +1568,7 @@
             rKeycode = settings.quickTabNaviKeyRight;
         }
         else { // using original keycodes
-            if (!((e.metaKey || e.ctrlKey) && e.altKey)) {
+            if (!((e.metaKey || e.ctrlKey) && e.shiftKey)) {
                 return;
             }
         }
