@@ -1183,7 +1183,7 @@
             dest.val(chanPrefix + source);
 
         // Use backbones jQuery to trigger an input event, causes update on TextCounter
-        Backbone.$("#robinMessageText").trigger("input");
+        window.eval("Backbone.$('#robinMessageText').trigger('input');");
     }
 
     var pastMessageQueue = [];
@@ -1501,10 +1501,12 @@
     $("#robinMessageText").css("display", "none");
 
     // Override TextCounter update method, uses channel filter in count
-    var originalTextCounterUpdate = r.ui.TextCounter.prototype.update;
-    r.ui.TextCounter.prototype.update = function() {
-        originalTextCounterUpdate.apply(this, [$("#robinMessageText").val()]);
-    }
+    window.eval("\
+        var originalTextCounterUpdate = r.ui.TextCounter.prototype.update;\
+        r.ui.TextCounter.prototype.update = function() {\
+            originalTextCounterUpdate.apply(this, [$('#robinMessageText').val()]);\
+        }\
+    ");
 
     // Alternate message input box (doesn't show the channel prefixes)
     $("#robinMessageTextAlt").on("input", function() { updateMessage(); });
