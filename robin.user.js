@@ -1183,7 +1183,7 @@
 
     function updateTextCounter()
     {
-        $("#textCounterDisplayAlt").text(String(Math.max(140 - Math.floor($("#robinMessageText").val().length), 0)));
+        $("#textCounterDisplayAlt").text(String(Math.max(140 - Math.floor($("#robinMessageText").val().length) - Math.floor(getChannelString().length), 0)));
     }
 
     //
