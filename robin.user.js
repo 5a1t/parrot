@@ -129,7 +129,7 @@
         };
     }
 
-    function hasChannelFromList(source, channels, shall_trim)
+    function hasChannelFromList(source, channels, shall_trim, ignore_empty)
     {
         channel_array = channels;
         source = shall_trim ? String(source).toLowerCase().trim() : String(source).toLowerCase();
@@ -137,6 +137,10 @@
         for (idx = 0; idx < channel_array.length; idx++)
         {
             var current_chan = shall_trim ? channel_array[idx].trim() : channel_array[idx];
+
+            if(ignore_empty && current_chan.length <= 0) {
+                continue;
+            }
 
             if(source.startsWith(current_chan.toLowerCase())) {
                 return {
@@ -1336,7 +1340,7 @@
              $("#robinMessageText").val(chanName + "em:"+mes2);
         }
         updatePastMessageQueue(message);
-        $("#robinMessageTextAlt").val("");
+$("#robinMessageTextAlt").val("");
     }
 
     function onMessageBoxKeyUp(e)
@@ -1468,7 +1472,7 @@
                 //updateUserPanel();
 
                 var exclude_list = String(settings.channel_exclude).split(",");
-                var results_chan_exclusion = hasChannelFromList(messageText, exclude_list, true);
+                var results_chan_exclusion = hasChannelFromList(messageText, exclude_list, true, true);
 
                 if (exclude_list.length > 0, String(settings.channel_exclude).trim().length > 0 && results_chan_exclusion.has) {
                     $message = null;
