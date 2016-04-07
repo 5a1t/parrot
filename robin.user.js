@@ -1321,6 +1321,9 @@
             var encryption_cue = message.indexOf("!cipher") == 0 ? "!cipher" : "!c";
 
             var mes2 = $.trim(message.substr(encryption_cue.length));
+		
+	    //hide message if not properly decrypted.
+            mes2 = "88z48" + mes2;
             //var atWho = $.trim(mes2.substring(0,mes2.indexOf(" ")));
             //mes2 = $.trim(mes2.substring(mes2.indexOf(" ")));
 
@@ -1452,7 +1455,17 @@
                     // Convert our bytes back into text
                     var decryptedText = aesjs.util.convertBytesToString(decryptedBytes);
                     messageText = messageText.replace(textBytes, decryptedText);
-                    $(jq[0]).find('.robin-message--message').text(chanName+"<Decrypted message> "+decryptedText);
+	
+	            var special = "88z48";
+	
+		    if(decryptedText.indexOf(special) == -1){
+				$message = null;
+				$(jq[0]).remove();
+
+			}
+		    else{
+				$(jq[0]).find('.robin-message--message').text(chanName+"<Decrypted message> "+decryptedText.substring(5));
+			}
                 }
 
 				datenow = new Date();
