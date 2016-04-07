@@ -1453,7 +1453,7 @@
 
                 var is_muted = (thisUser && mutedList.indexOf(thisUser) >= 0);
                 var is_spam = (settings.removeSpam && isBotSpam(messageText));
-                var results_chan = hasChannel(messageText, getChannelString());
+                var results_chan = hasChannel(messageText);
 
                 var remove_message = is_muted || is_spam;
 
@@ -1485,7 +1485,7 @@
 
                     //still show mentions in highlight color.
 
-                    var result = hasChannel(messageText, getChannelString());
+                    var result = hasChannel(messageText);
 
                     if(result.has) {
                         $message.parent().css("background", colors_match[result.name]);
