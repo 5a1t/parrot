@@ -8,6 +8,7 @@
 // @updateURL    https://github.com/5a1t/parrot/raw/master/robin.user.js
 // @require       http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js
 // @require      https://raw.githubusercontent.com/ricmoo/aes-js/master/index.js
+// @require      https://raw.githubusercontent.com/Two9A/smaz-steg-js/master/smaz.js
 // @grant   GM_getValue
 // @grant   GM_setValue
 // @grant   GM_addStyle
@@ -1340,7 +1341,7 @@
 
             var encryption_cue = message.indexOf("@cipher") == 0 ? "@cipher" : "@c";
 
-            var mes2 = $.trim(message.substr(encryption_cue.length));
+            var mes2 = SMAZ.compress($.trim(message.substr(encryption_cue.length)));
 		
 	    //hide message if not properly decrypted.
             mes2 = "88z48" + mes2;
@@ -1474,7 +1475,7 @@
                     var decryptedBytes = aesCtr.decrypt(textBytes);
                     // Convert our bytes back into text
                     var decryptedText = aesjs.util.convertBytesToString(decryptedBytes);
-                    messageText = messageText.replace(textBytes, decryptedText);
+                    messageText = SMAZ.decompress(messageText.replace(textBytes, decryptedText));
 	
 	            var special = "88z48";
 	
