@@ -990,12 +990,13 @@
 
 	});
 
+	// Sort the array based on the second element
 	 actives = actives.sort(function(first, second) {
 	    //console.log(first[1] + "   is <    " +  second[1]);
 	    //console.log(second[1] >= first[1]);
 	    return second[1] - first[1];
-
-	});
+	    
+	});	
 
 
 	var options = {
@@ -1277,9 +1278,24 @@
         return dropdownChannel();
     }
 
-    function updateTextCounter()
+    function updateTextCounter(chanPrefix)
     {
-        $("#textCounterDisplayAlt").text(String(Math.max(140 - Math.floor($("#robinMessageText").val().length), 0)));
+        var maxLength = 140;
+
+        var $robinMessageText = $("#robinMessageText");
+        var completeMessage = $robinMessageText.val();
+
+        // small channel names with a full message body switched to a long channel name
+        // cause robinMessageText to overflow out of bounds
+        // this truncates the message to the limit
+        if (completeMessage.length > maxLength) {
+            completeMessage = completeMessage.substr(0, maxLength);
+            $robinMessageText.val(completeMessage);
+        }
+
+        // subtract the channel prefix from the maxLength
+        $("#robinMessageTextAlt").attr('maxLength', maxLength - chanPrefix.length);
+        $("#textCounterDisplayAlt").text(String(Math.max(maxLength - completeMessage.length), 0));
     }
 
     //
@@ -1301,7 +1317,7 @@
         else
             dest.val(chanPrefix + source);
 
-        updateTextCounter();
+        updateTextCounter(chanPrefix);
     }
 
     var pastMessageQueue = [];
