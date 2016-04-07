@@ -1316,6 +1316,7 @@
         }
 
         updatePastMessageQueue(message);
+        setTimeout(updateTextCounter, 50);
     }
 
     function onMessageBoxKeyUp(e)
