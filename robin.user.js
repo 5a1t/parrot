@@ -560,12 +560,12 @@
             }
         }
 
-        channels.sort(function(a,b) {return activeChannelsCounts[a] - activeChannelsCounts[b];});
+        channels.sort(function(a,b) {return activeChannelsCounts[b] - activeChannelsCounts[a];});
 
         // Build the table
         var html = "<table>\r\n" +
                    "<thead>\r\n" +
-                   "<tr><th>#</th><th>Channel Name</th></tr>\r\n" +
+                   "<tr><th>#</th><th>Channel Name</th><th>Join Channel</th></tr>\r\n" +
                    "</thead>\r\n" +
                    "<tbody>\r\n";
 
@@ -574,7 +574,7 @@
             limit = channels.length;
 
         for (var i = 0; i < limit; i++) {
-            html += "<tr><td>" + (i+1) + "</td><td>" + channels[i] + "</td></tr>\r\n";
+            html += "<tr><td>" + (i+1) + "</td><td>" + channels[i] + "</td><td><div class=\"channelBtn robin-chat--vote\">Join Channel</div></td></tr>\r\n";
         }
 
         html += "</tbody>\r\n" +
@@ -582,6 +582,18 @@
                 '<br/>';
 
         $("#activeChannelsTable").html(html);
+        
+        $(".channelBtn").on("click", function joinChannel() {
+            var channel = $(this).parent().prev().contents().text();
+            var channels = getChannelList();
+            
+            if (channel && $.inArray(channel, channels) < 0) {
+                settings.channel += "," + channel;
+                Settings.save(settings);
+                buildDropdown();
+                resetChannels();
+            }
+        });
     }
 
     var channelsInterval = 0;
@@ -1975,6 +1987,16 @@
             font-weight: bold; \
             margin-left: 0; \
         } \
+        #channelsContent th { \
+            text-align: center !important; \
+        } \
+        #channelsContent td { \
+            text-align: center !important; \
+        } \
+        .channelBtn {\
+            padding: 0 !important; \
+            font-size: x-small !important; \
+        }\
         .robin--user-class--self { \
             background: #F5F5F5; \
             font-weight: bold; \
