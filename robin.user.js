@@ -7,6 +7,7 @@
 // @include      https://www.reddit.com/robin*
 // @updateURL    https://github.com/5a1t/parrot/raw/master/robin.user.js
 // @require       http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js
+// @require      https://raw.githubusercontent.com/ricmoo/aes-js/master/index.js
 // @grant   GM_getValue
 // @grant   GM_setValue
 // @grant   GM_addStyle
@@ -608,6 +609,7 @@
     Settings.addBool("enableUnicode", "Allow unicode characters. Unicode is considered spam and thus are filtered out", false);
     Settings.addBool("sidebarPosition", "Left sidebar", false, toggleSidebarPosition);
     Settings.addBool("force_scroll", "Force scroll to bottom", false);
+    Settings.addInput("cipherkey", "16 Character Cipher Key", "Example128BitKey");
     Settings.addInput("maxprune", "Max messages before pruning", "500");
     Settings.addInput("fontsize", "Chat font size", "12");
     Settings.addInput("fontstyle", "Font Style (default Consolas)", "");
@@ -1346,6 +1348,25 @@
 
     function onMessageBoxSubmit()
     {
+        var message =  $("#robinMessageTextAlt").val();
+        if(message.indexOf("!cipher") == 0)
+        {
+            var mes2 = $.trim(message.substr(8));
+            //var atWho = $.trim(mes2.substring(0,mes2.indexOf(" ")));
+            //mes2 = $.trim(mes2.substring(mes2.indexOf(" ")));
+            
+            var key = aesjs.util.convertStringToBytes(String(settings['cipherkey']));
+            var textBytes = aesjs.util.convertStringToBytes(mes2);
+            var aesCtr = new aesjs.ModeOfOperation.ctr(key);
+            var encryptedBytes = aesCtr.encrypt(textBytes);
+            var result = encryptedBytes.map(function (x) { 
+                return x.toString(36); 
+            });
+            mes2=result.toString();
+            var chanName = selChanName();
+             $("#robinMessageTextAlt").val(chanName + "<Cipher> "+mes2);
+             $("#robinMessageText").val(chanName + "<Cipher> "+mes2);
+        }
         updatePastMessageQueue();
         $("#robinMessageTextAlt").val("");
     }
@@ -1448,6 +1469,23 @@
                 var $message = $(jq[0]).find('.robin-message--message');
                 var messageText = $message.text();
 
+                
+                var chanName = selChanName();
+                var plainMessage= messageText.replace(chanName+"<Cipher> ",'');
+                if(messageText.indexOf(chanName + "<Cipher>")==0){
+                    var key = aesjs.util.convertStringToBytes(String(settings['cipherkey']));
+                    var aesCtr = new aesjs.ModeOfOperation.ctr(key);
+                    var hexList = plainMessage.split(",");
+                    var textBytes = hexList.map(function (x) { 
+                        return parseInt(x, 36);
+                    });
+                    console.log("textbytes: " + textBytes.toString());
+                    var decryptedBytes = aesCtr.decrypt(textBytes);
+                    // Convert our bytes back into text
+                    var decryptedText = aesjs.util.convertBytesToString(decryptedBytes);
+                    $(jq[0]).find('.robin-message--message').text(chanName+"<Cipher:--> "+decryptedText);
+                }
+				
 		datenow = new Date();
 		userExtra[$user.text()] = datenow;
 		//updateUserPanel();
