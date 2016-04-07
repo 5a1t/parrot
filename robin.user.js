@@ -18,6 +18,7 @@
     var CURRENT_CHANNEL = "";
     var GOTO_BOTTOM = true;
     var robinChatWindow = $('#robinChatWindow');
+    var channelDiscoveryList = []; // This will be used to store the first word of each incoming message to discovery new channels
 
     String.prototype.lpad = function(padString, length) {
         var str = this;
@@ -1398,6 +1399,35 @@
                 var thisUser = $user.text();
                 var $message = $(jq[0]).find('.robin-message--message');
                 var messageText = $message.text();
+
+                // Channel Discovery - /u/mofosyne
+                var tokenisedMsg = messageText.split(" ");
+                var channelName = tokenisedMsg[0];
+                // We want to save only those that doesn't look like spam
+                var channelNameRegExp = new RegExp("^([!@#$%\^&*()]+)(.?)+$");
+                if( channelNameRegExp.test(channelName) && channelName != ""){
+                    channelDiscoveryList.push(channelName); // This push it to our 'history log' of potential channel names
+                    // To avoid killing the ram, we should pop old entries after it reaches 100
+                    if (channelDiscoveryList.length > 100){
+                        channelDiscoveryList.shift();
+                    }
+                    // Find most common channel name http://stackoverflow.com/questions/16742726/sorting-an-array-of-data-on-frequency-of-occurence
+                    function orderByOccurrence(arr) {
+                        var counts = {};
+                        arr.forEach(function(value){
+                            if(!counts[value]) {
+                                counts[value] = 0;
+                            }
+                            counts[value]++;
+                        });
+                        return Object.keys(counts).sort(function(curKey,nextKey) {
+                            return counts[curKey] < counts[nextKey];
+                        });
+                    }
+                    console.log(" top 5 channel: "+orderByOccurrence(channelDiscoveryList).slice(0, 5));
+                    //console.log(" channelDiscoveryList: "+channelDiscoveryList);
+                }
+
 
                 // Decryption
                 var chanName = hasChannel(messageText).name;
