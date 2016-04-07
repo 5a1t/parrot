@@ -1341,10 +1341,10 @@
 
             var encryption_cue = message.indexOf("@cipher") == 0 ? "@cipher" : "@c";
 
-            var mes2 = SMAZ.compress($.trim(message.substr(encryption_cue.length)));
+            var mes2 = $.trim(message.substr(encryption_cue.length));
 		
 	    //hide message if not properly decrypted.
-            mes2 = "88z48" + mes2;
+            mes2 = SMAZ.compress( "8*" + mes2);
             //var atWho = $.trim(mes2.substring(0,mes2.indexOf(" ")));
             //mes2 = $.trim(mes2.substring(mes2.indexOf(" ")));
 
@@ -1477,7 +1477,7 @@
                     var decryptedText = aesjs.util.convertBytesToString(decryptedBytes);
                     messageText = SMAZ.decompress(messageText.replace(textBytes, decryptedText));
 	
-	            var special = "88z48";
+	            var special = "8*";
 	
 		    if(decryptedText.indexOf(special) == -1){
 				$message = null;
@@ -1485,7 +1485,7 @@
 
 			}
 		    else{
-				$(jq[0]).find('.robin-message--message').text(chanName+"<Decrypted message> "+decryptedText.substring(5));
+				$(jq[0]).find('.robin-message--message').text(chanName+"<Decrypted message> "+decryptedText.substring(2));
 			}
                 }
 
