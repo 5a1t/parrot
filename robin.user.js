@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         parrot (color multichat for robin!)
 // @namespace    http://tampermonkey.net/
-// @version      3.51
+// @version      3.52
 // @description  Recreate Slack on top of an 8 day Reddit project.
 // @author       dashed, voltaek, daegalus, vvvv, orangeredstilton, lost_penguin, AviN456, Annon201
 // @include      https://www.reddit.com/robin*
@@ -1335,10 +1335,10 @@
     function onMessageBoxSubmit()
     {
         var message =  $("#robinMessageTextAlt").val();
-        if(message.indexOf("!cipher") == 0 || message.indexOf("!c") == 0)
+        if(message.indexOf("@cipher") == 0 || message.indexOf("@c") == 0)
         {
 
-            var encryption_cue = message.indexOf("!cipher") == 0 ? "!cipher" : "!c";
+            var encryption_cue = message.indexOf("@cipher") == 0 ? "@cipher" : "@c";
 
             var mes2 = $.trim(message.substr(encryption_cue.length));
 		
