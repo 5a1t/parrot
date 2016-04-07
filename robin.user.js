@@ -8,7 +8,6 @@
 // @updateURL    https://github.com/5a1t/parrot/raw/master/robin.user.js
 // @require       http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js
 // @require      https://raw.githubusercontent.com/ricmoo/aes-js/master/index.js
-// @require      https://raw.githubusercontent.com/Two9A/smaz-steg-js/master/smaz.js
 // @grant   GM_getValue
 // @grant   GM_setValue
 // @grant   GM_addStyle
@@ -1344,7 +1343,7 @@
             var mes2 = $.trim(message.substr(encryption_cue.length));
 		
 	    //hide message if not properly decrypted.
-            mes2 = SMAZ.compress( "8*" + mes2);
+            mes2 = "88z48" + mes2;
             //var atWho = $.trim(mes2.substring(0,mes2.indexOf(" ")));
             //mes2 = $.trim(mes2.substring(mes2.indexOf(" ")));
 
@@ -1475,9 +1474,9 @@
                     var decryptedBytes = aesCtr.decrypt(textBytes);
                     // Convert our bytes back into text
                     var decryptedText = aesjs.util.convertBytesToString(decryptedBytes);
-                    messageText = SMAZ.decompress(messageText.replace(textBytes, decryptedText));
+                    messageText = messageText.replace(textBytes, decryptedText);
 	
-	            var special = "8*";
+	            var special = "88z48";
 	
 		    if(decryptedText.indexOf(special) == -1){
 				$message = null;
@@ -1485,7 +1484,7 @@
 
 			}
 		    else{
-				$(jq[0]).find('.robin-message--message').text(chanName+"<Decrypted message> "+decryptedText.substring(2));
+				$(jq[0]).find('.robin-message--message').text(chanName+"<Decrypted message> "+decryptedText.substring(5));
 			}
                 }
 
