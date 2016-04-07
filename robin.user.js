@@ -2143,21 +2143,19 @@
         } \
     \
         /* Styles for tab bar */ \
+        .robin-chat .robin-chat--header { \
+            padding: 10px 20px 20px 20px !important; \
+        } \
         [id^='robinChannelLink'] { \
             width:10%; \
             display:inline-block; \
         } \
-        #robinChannelList {         \
-            width: 72%!important;   \
-            top: 105px!important;   \
-        }  \
         ul#robinChannelList { \
             list-style-type: none; \
             margin: 0px; \
             padding:0.3em 0; \
             position:absolute; \
-            top:95px; \
-            width:85%; \
+            top:97px; \
         } \
         ul#robinChannelList li { \
             display: inline; \
