@@ -1028,8 +1028,8 @@
 
 
 	    var datestring = userpair[1].toLocaleTimeString("en-us", options);
-		
-	    
+
+
             $("#robinUserList").append(
                 $("<div class='robin-room-participant robin--user-class--user robin--presence-class--" + mutedHere + votestyle + "'></div>")
                 .append("<span class='robin--icon'></span><span class='robin--username' style='color:" + colorFromName(userpair[0]) + "'>" + userpair[0] + "</span>" + "<span class=\"robin-message--message\"style=\"font-size: 10px;\"> &nbsp;" + datestring + "</span>")
@@ -1278,15 +1278,24 @@
         return dropdownChannel();
     }
 
-    function updateTextCounter()
+    function updateTextCounter(chanPrefix)
     {
+        var maxLength = 140;
 
-        var chanPrefix = selChanName();
-        if (chanPrefix.length > 0)
-            chanPrefix += " ";
+        var $robinMessageText = $("#robinMessageText");
+        var completeMessage = $robinMessageText.val();
 
+        // small channel names with a full message body switched to a long channel name
+        // cause robinMessageText to overflow out of bounds
+        // this truncates the message to the limit
+        if (completeMessage.length > maxLength) {
+            completeMessage = completeMessage.substr(0, maxLength);
+            $robinMessageText.val(completeMessage);
+        }
 
-        $("#textCounterDisplayAlt").text(String(Math.max(140 - Math.floor($("#robinMessageText").val().length) - Math.floor(chanPrefix.length), 0)));
+        // subtract the channel prefix from the maxLength
+        $("#robinMessageTextAlt").attr('maxLength', maxLength - chanPrefix.length);
+        $("#textCounterDisplayAlt").text(String(Math.max(maxLength - completeMessage.length), 0));
     }
 
     //
@@ -1308,7 +1317,7 @@
         else
             dest.val(chanPrefix + source);
 
-        updateTextCounter();
+        updateTextCounter(chanPrefix);
     }
 
     var pastMessageQueue = [];
