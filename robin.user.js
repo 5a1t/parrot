@@ -1621,7 +1621,10 @@
         mutations.forEach(function(mutation) {
             if (mutation.addedNodes.length > 0) {
                 var usernameSpan = mutation.addedNodes[0].children[1];
-                usernameSpan.style.color = colorFromName(usernameSpan.innerHTML);
+				// This may need to be fixed. Until then, I'm adding this if statement to prevent errors flooding the console.
+				if (usernameSpan) {
+					usernameSpan.style.color = colorFromName(usernameSpan.innerHTML);
+				}
             }
         });
     });
