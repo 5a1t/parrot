@@ -1394,7 +1394,8 @@
                 var $message = $(jq[0]).find('.robin-message--message');
                 var messageText = $message.text();
 
-                var chanName = selChanName();
+                // Decryption
+                var chanName = hasChannel(messageText).name;
                 if (messageText.indexOf(chanName + "em:") == 0) {
                     var plainMessage = "";
                     for (index = (chanName + "em:").length; index < messageText.length; index += 2)
