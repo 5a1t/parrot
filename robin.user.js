@@ -1,12 +1,13 @@
 // ==UserScript==
 // @name         parrot (color multichat for robin!)
 // @namespace    http://tampermonkey.net/
-// @version      3.39
+// @version      3.41
 // @description  Recreate Slack on top of an 8 day Reddit project.
 // @author       dashed, voltaek, daegalus, vvvv, orangeredstilton, lost_penguin, AviN456, Annon201
 // @include      https://www.reddit.com/robin*
 // @updateURL    https://github.com/5a1t/parrot/raw/master/robin.user.js
 // @require       http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js
+// @require      https://raw.githubusercontent.com/ricmoo/aes-js/master/index.js
 // @grant   GM_getValue
 // @grant   GM_setValue
 // @grant   GM_addStyle
@@ -206,7 +207,8 @@
         },
 
         save: function saveSetting(userExtra) {
-            console.log("Saving");
+	        console.log("Saving");
+	        //console.log(JSON.stringify(userExtra));
             localStorage.setItem('parrot-user-extra', JSON.stringify(userExtra));
             localStorage.setItem('parrot-user-version', 12);
         }
@@ -589,6 +591,7 @@
     Settings.addBool("enableUnicode", "Allow unicode characters. Unicode is considered spam and thus are filtered out", false);
     Settings.addBool("sidebarPosition", "Left sidebar", false, toggleSidebarPosition);
     Settings.addBool("force_scroll", "Force scroll to bottom", false);
+    Settings.addInput("cipherkey", "16 Character Cipher Key", "Example128BitKey");
     Settings.addInput("maxprune", "Max messages before pruning", "500");
     Settings.addInput("fontsize", "Chat font size", "12");
     Settings.addInput("fontstyle", "Font Style (default Consolas)", "");
@@ -965,6 +968,15 @@
             return second[1] >=  first[1];
         }); 
 
+	});
+
+	var options = {
+		month: "2-digit",
+		 day: "2-digit", hour: "2-digit", minute: "2-digit"
+	};
+
+	//console.log(actives);
+
         $("#robinUserList").html("");
 
         $.each(actives, function(index,userpair){
@@ -985,7 +997,7 @@
         
             $("#robinUserList").append(
                 $("<div class='robin-room-participant robin--user-class--user robin--presence-class--" + mutedHere + votestyle + "'></div>")
-                .append("<span class='robin--icon'></span><span class='robin--username' style='color:" + colorFromName(userpair[0]) + "'>" + userpair[0] + "</span>")
+                .append("<span class='robin--icon'></span><span class='robin--username' style='color:" + colorFromName(userpair[0]) + "'>" + userpair[0] + "</span>" + "<span class=\"robin-message--message\"style=\"font-size: 10px;\"> &nbsp;" + datestring + "</span>")
             );
         });
 
@@ -1219,15 +1231,24 @@
         return dropdownChannel();
     }
 
-    function updateTextCounter()
+    function updateTextCounter(chanPrefix)
     {
+        var maxLength = 140;
 
-        var chanPrefix = selChanName();
-        if (chanPrefix.length > 0)
-            chanPrefix += " ";
+        var $robinMessageText = $("#robinMessageText");
+        var completeMessage = $robinMessageText.val();
 
+        // small channel names with a full message body switched to a long channel name
+        // cause robinMessageText to overflow out of bounds
+        // this truncates the message to the limit
+        if (completeMessage.length > maxLength) {
+            completeMessage = completeMessage.substr(0, maxLength);
+            $robinMessageText.val(completeMessage);
+        }
 
-        $("#textCounterDisplayAlt").text(String(Math.max(140 - Math.floor($("#robinMessageText").val().length) - Math.floor(chanPrefix.length), 0)));
+        // subtract the channel prefix from the maxLength
+        $("#robinMessageTextAlt").attr('maxLength', maxLength - chanPrefix.length);
+        $("#textCounterDisplayAlt").text(String(Math.max(maxLength - completeMessage.length), 0));
     }
 
     //
@@ -1249,7 +1270,7 @@
         else
             dest.val(chanPrefix + source);
 
-        updateTextCounter();
+        updateTextCounter(chanPrefix);
     }
 
     var pastMessageQueue = [];
@@ -1278,6 +1299,25 @@
 
     function onMessageBoxSubmit()
     {
+        var message =  $("#robinMessageTextAlt").val();
+        if(message.indexOf("!cipher") == 0)
+        {
+            var mes2 = $.trim(message.substr(8));
+            //var atWho = $.trim(mes2.substring(0,mes2.indexOf(" ")));
+            //mes2 = $.trim(mes2.substring(mes2.indexOf(" ")));
+            
+            var key = aesjs.util.convertStringToBytes(String(settings['cipherkey']));
+            var textBytes = aesjs.util.convertStringToBytes(mes2);
+            var aesCtr = new aesjs.ModeOfOperation.ctr(key);
+            var encryptedBytes = aesCtr.encrypt(textBytes);
+            var result = encryptedBytes.map(function (x) { 
+                return x.toString(36); 
+            });
+            mes2=result.toString();
+            var chanName = selChanName();
+             $("#robinMessageTextAlt").val(chanName + "<Cipher> "+mes2);
+             $("#robinMessageText").val(chanName + "<Cipher> "+mes2);
+        }
         updatePastMessageQueue();
         $("#robinMessageTextAlt").val("");
     }
@@ -1379,9 +1419,26 @@
                 var $message = $(jq[0]).find('.robin-message--message');
                 var messageText = $message.text();
 
-                datenow = new Date();
-                userExtra[$user.text()] = datenow;
-                //updateUserPanel();
+                
+                var chanName = selChanName();
+                var plainMessage= messageText.replace(chanName+"<Cipher> ",'');
+                if(messageText.indexOf(chanName + "<Cipher>")==0){
+                    var key = aesjs.util.convertStringToBytes(String(settings['cipherkey']));
+                    var aesCtr = new aesjs.ModeOfOperation.ctr(key);
+                    var hexList = plainMessage.split(",");
+                    var textBytes = hexList.map(function (x) { 
+                        return parseInt(x, 36);
+                    });
+                    console.log("textbytes: " + textBytes.toString());
+                    var decryptedBytes = aesCtr.decrypt(textBytes);
+                    // Convert our bytes back into text
+                    var decryptedText = aesjs.util.convertBytesToString(decryptedBytes);
+                    $(jq[0]).find('.robin-message--message').text(chanName+"<Cipher:--> "+decryptedText);
+                }
+				
+				datenow = new Date();
+				userExtra[$user.text()] = datenow;
+				//updateUserPanel();
 
                 var exclude_list = String(settings.channel_exclude).split(",");
                 var results_chan_exclusion = hasChannelFromList(messageText, exclude_list, true);
@@ -1515,6 +1572,7 @@
             $('#sendBtn').html("Send Message");
             countdown = 0;
         }
+
     }
 
     setInterval(update, 10000);
