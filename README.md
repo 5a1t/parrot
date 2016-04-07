@@ -39,7 +39,8 @@ https://www.reddit.com/r/parrot_script/
 12. Tab-Based Chatting!
 13. Channel exclusion from global chat.
 14. Sent Message History.
-15. Minified version of the automatic standings board.
+15. Minified version of the automatic standings board, along with a full-size one!
+16. Optional chat encryption with a key of your choice!
 
 ## Updates
 
@@ -71,7 +72,12 @@ https://www.reddit.com/r/parrot_script/
     2.6: Message history w/ up and down arrow (LTAcosta). New title (dashed). Leaderboard reporting (Unimatrix0).
     2.7: BTTV emotes (anadee). Sent message history setting (LTAcosta). Standings view. Reorganized checkboxes.
     2.8: Channel exclusion filtering (dashed). You can toggle the sidebar to the left or the right (ceetee). Gitter devchat.
-    2.9: Fixes for autocomplete and scrolling.
+    2.9: Fixes for autocomplete and scrolling. Hide channels in global (lost_penguin).
+    3.0: Suprise :) (lajiggyjarjardoo). 
+    3.1: Full  monstrous standings table. Settings cleanup (lost_penguin). Fix remaining time.
+    3.2: Rate timer is now more noticiable (mrspicyweiner). Fixed channel and autocomplete bugs.
+    3.3: Changed the chat to use table formatting on message list (Johan) - or maybe not.
+    3.4: FREAKING ENCRYPTION MAN (mrspicyweiner). Hover panel for PMs (5alt). 
 
 ## Screenshots
 
