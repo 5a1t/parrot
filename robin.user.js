@@ -990,13 +990,12 @@
 
 	});
 
-	// Sort the array based on the second element
 	 actives = actives.sort(function(first, second) {
 	    //console.log(first[1] + "   is <    " +  second[1]);
 	    //console.log(second[1] >= first[1]);
 	    return second[1] - first[1];
-	    
-	});	
+
+	});
 
 
 	var options = {
@@ -1028,8 +1027,8 @@
 
 
 	    var datestring = userpair[1].toLocaleTimeString("en-us", options);
-		
-	    
+
+
             $("#robinUserList").append(
                 $("<div class='robin-room-participant robin--user-class--user robin--presence-class--" + mutedHere + votestyle + "'></div>")
                 .append("<span class='robin--icon'></span><span class='robin--username' style='color:" + colorFromName(userpair[0]) + "'>" + userpair[0] + "</span>" + "<span class=\"robin-message--message\"style=\"font-size: 10px;\"> &nbsp;" + datestring + "</span>")
@@ -1280,13 +1279,7 @@
 
     function updateTextCounter()
     {
-
-        var chanPrefix = selChanName();
-        if (chanPrefix.length > 0)
-            chanPrefix += " ";
-
-
-        $("#textCounterDisplayAlt").text(String(Math.max(140 - Math.floor($("#robinMessageText").val().length) - Math.floor(chanPrefix.length), 0)));
+        $("#textCounterDisplayAlt").text(String(Math.max(140 - Math.floor($("#robinMessageText").val().length), 0)));
     }
 
     //
