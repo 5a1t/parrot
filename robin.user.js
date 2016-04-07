@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         parrot (color multichat for robin!)
 // @namespace    http://tampermonkey.net/
-// @version      3.62
+// @version      3.63
 // @description  Recreate Slack on top of an 8 day Reddit project.
 // @author       dashed, voltaek, daegalus, vvvv, orangeredstilton, lost_penguin, AviN456, Annon201
 // @include      https://www.reddit.com/robin*
@@ -232,7 +232,7 @@
                      '</div>' +
                  '</div>'
             );
-            
+
             // Active channels container
             $("#settingContainer").before(
                 '<div class="robin-chat--sidebar" style="display:none;" id="channelsContainer">' +
@@ -280,7 +280,7 @@
                 $("#settingContainer").hide();
                 $("#channelsContainer").hide();
             });
-            
+
             $("#channelsBtn").on("click", function openChannels() {
                 $(".robin-chat--sidebar").hide();
                 startChannels();
@@ -549,7 +549,7 @@
             standingsInterval = 0;
         }
     }
-    
+
     function updateChannels()
     {
         // Sort the channels
@@ -559,31 +559,31 @@
 				channels.push(channel);
 			}
 		}
-            
+
         channels.sort(function(a,b) {return activeChannelsCounts[a] - activeChannelsCounts[b];});
-        
+
         // Build the table
         var html = "<table>\r\n" +
                    "<thead>\r\n" +
                    "<tr><th>#</th><th>Channel Name</th></tr>\r\n" +
                    "</thead>\r\n" +
                    "<tbody>\r\n";
-                   
+
         var limit = 50;
         if (channels.length < limit)
             limit = channels.length;
-        
+
         for (var i = 0; i < limit; i++) {
             html += "<tr><td>" + (i+1) + "</td><td>" + channels[i] + "</td></tr>\r\n";
         }
-                    
+
         html += "</tbody>\r\n" +
                 "</table>\r\n" +
                 '<br/>';
-                
+
         $("#activeChannelsTable").html(html);
     }
-    
+
     var channelsInterval = 0;
     function startChannels() {
         stopChannels();
@@ -1439,43 +1439,43 @@
         $("#robinMessageText").val(source);
         updateTextCounter();
     }
-    
+
     // Monitor the most active channels.
     var activeChannelsQueue = [];
     var activeChannelsCounts = {};
-    function updateMostActiveChannels(messageText) 
+    function updateMostActiveChannels(messageText)
     {
         var chanName = messageText;
-        
+
         if (!chanName)
             return;
-        
+
         // To simplify things, we're going to start by only handling channels that start with punctuation.
         if (!chanName.match(/^[!"#$%&\\'()\*+,\-\.\/:;<=>?@\[\]\^_`{|}~]/))
             return;
-        
+
         var index = chanName.indexOf("em:");
         if (index >= 0)
             chanName = chanName.substring(0, index);
-        
+
         index = chanName.indexOf(" ");
         if (index >= 0)
             chanName = chanName.substring(0, index);
-        
+
         if (!chanName || chanName == messageText)
             return;
-        
+
         chanName = chanName.toLowerCase();
         activeChannelsQueue.unshift(chanName);
-        
+
         if (!activeChannelsCounts[chanName]) {
             activeChannelsCounts[chanName] = 0;
         }
         activeChannelsCounts[chanName]++;
-        
+
         if (activeChannelsQueue.length > 2000){
             var oldChanName = activeChannelsQueue.pop();
-            activeChannelsCounts[oldChanName]--;            
+            activeChannelsCounts[oldChanName]--;
         }
     }
 
