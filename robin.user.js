@@ -109,24 +109,7 @@
         channel_array = getChannelList();
         source = String(source).toLowerCase();
 
-        for (idx = 0; idx < channel_array.length; idx++)
-        {
-            var current_chan = channel_array[idx];
-
-            if (source.startsWith(current_chan.toLowerCase())) {
-                return {
-                    name: current_chan,
-                    has: true,
-                    index: idx
-                };
-            }
-        }
-
-        return {
-            name: "",
-            has: false,
-            index: 0
-        };
+        return hasChannelFromList(source, channel_array, false);
     }
 
     function hasChannelFromList(source, channels, shall_trim)
@@ -1438,8 +1421,8 @@
                 var $message = $(jq[0]).find('.robin-message--message');
                 var messageText = $message.text();
 
-
-                var chanName = selChanName();
+                // Decryption
+                var chanName = hasChannel(messageText).name;
                 if (messageText.indexOf(chanName + "em:") == 0) {
                     var plainMessage = "";
                     for (index = (chanName + "em:").length; index < messageText.length; index += 2)
@@ -1465,6 +1448,7 @@
                     }
                     else {
                         $(jq[0]).find('.robin-message--message').text(chanName+"<Crypto> "+decryptedText.substring(5));
+						messageText = $message.text();
                     }
                 }
 
@@ -1498,7 +1482,7 @@
 
                 var is_muted = (thisUser && mutedList.indexOf(thisUser) >= 0);
                 var is_spam = (settings.removeSpam && isBotSpam(messageText));
-                var results_chan = hasChannel(messageText, getChannelString());
+                var results_chan = hasChannel(messageText);
 
                 var remove_message = is_muted || is_spam;
 
@@ -1530,7 +1514,7 @@
 
                     //still show mentions in highlight color.
 
-                    var result = hasChannel(messageText, getChannelString());
+                    var result = hasChannel(messageText);
 
                     if(result.has) {
                         $message.parent().css("background", colors_match[result.name]);
@@ -1637,7 +1621,10 @@
         mutations.forEach(function(mutation) {
             if (mutation.addedNodes.length > 0) {
                 var usernameSpan = mutation.addedNodes[0].children[1];
-                usernameSpan.style.color = colorFromName(usernameSpan.innerHTML);
+				// This may need to be fixed. Until then, I'm adding this if statement to prevent errors flooding the console.
+				if (usernameSpan) {
+					usernameSpan.style.color = colorFromName(usernameSpan.innerHTML);
+				}
             }
         });
     });
