@@ -958,24 +958,28 @@
 
     function listAllUsers() {
 
-        var actives = Object.keys(userExtra).map(function(key) {
-            //console.log("key: " + key + " val: " + userExtra[key]);
-            return [key, userExtra[key]];
-        });
+    var actives = Object.keys(userExtra).map(function(key) {
 
-        // Sort the array based on the second element
-        actives.sort(function(first, second) {
-            return second[1] >=  first[1];
-        }); 
+        //console.log("key: " + key + " val: " + userExtra[key]);
+        return [key, userExtra[key]];
 
-	});
+    });
 
-	var options = {
-		month: "2-digit",
-		 day: "2-digit", hour: "2-digit", minute: "2-digit"
-	};
+    // Sort the array based on the second element
+     actives = actives.sort(function(first, second) {
+        //console.log(first[1] + "   is <    " +  second[1]);
+        //console.log(second[1] >= first[1]);
+        return second[1] - first[1];
 
-	//console.log(actives);
+    });
+
+
+    var options = {
+        month: "2-digit",
+         day: "2-digit", hour: "2-digit", minute: "2-digit"
+    };
+
+    //console.log(actives);
 
         $("#robinUserList").html("");
 
@@ -993,15 +997,22 @@
                 mutedHere = "away";
             }
 
-            var votestyle = userInArray && userInArray.length > 0 ? " robin--vote-class--" + userInArray[0].vote.toLowerCase() : "";
-        
+            var votestyle = userInArray && userInArray.length > 0 ?
+                " robin--vote-class--" + userInArray[0].vote.toLowerCase()
+                : "";
+
+
+        var datestring = userpair[1].toLocaleTimeString("en-us", options);
+
+
             $("#robinUserList").append(
                 $("<div class='robin-room-participant robin--user-class--user robin--presence-class--" + mutedHere + votestyle + "'></div>")
                 .append("<span class='robin--icon'></span><span class='robin--username' style='color:" + colorFromName(userpair[0]) + "'>" + userpair[0] + "</span>" + "<span class=\"robin-message--message\"style=\"font-size: 10px;\"> &nbsp;" + datestring + "</span>")
             );
         });
 
-        updateUserPanel();
+    //updateUserPanel();
+
     }
 
     //colored text thanks to OrangeredStilton! https://gist.github.com/Two9A/3f33ee6f6daf6a14c1cc3f18f276dacd
@@ -1827,10 +1838,12 @@ GM_addStyle(" \
         overflow-y: scroll; \
     } \
     #robinVoteWidget, \
-    #closeBtn { \
+    #closeBtn, \
+    #sendBtn { \
         font-weight: bold; \
     } \
-    .robin-chat--sidebar .robin-chat--vote { \
+    .robin-chat--sidebar .robin-chat--vote, \
+    #sendBtn { \
         margin-left: 0; \
     } \
     .info-box-only, \
