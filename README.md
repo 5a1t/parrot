@@ -1,5 +1,8 @@
 # Parrot - Robin Grow Fork, modified for comma separated multi-channel listening, colors, channel selection, Twitch Emotes, and more!
 
+#SO LONG AND THANKS FOR ALL THE MEMORIES!
+
+
 [![Join the chat at https://gitter.im/5a1t/parrot](https://badges.gitter.im/5a1t/parrot.svg)](https://gitter.im/5a1t/parrot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 **THIS FORK WAS MADE WITHIN soKukuneli**
