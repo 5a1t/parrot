@@ -1032,8 +1032,12 @@
 	    var datestring = userpair[1].toLocaleTimeString("en-us", options);
 
 
+
+            name_area = $("<div class='robin-room-participant robin--user-class--user robin--presence-class--" + mutedHere + votestyle + "'></div>")
+		.hover(function(){$('#user-submenu-' + userpair[0]).slideDown('medium');},function(){$('#user-submenu-' + userpair[0]).slideUp('medium');})
+		.prepend('<ul class="parrot-user-submenu" id="user-submenu-' + userpair[0] + '" style="margin: 0px; padding: 0px; list-style: none; border: 1px solid rgb(171, 171, 171); display: none;" ><li><a target="_blank" href="https://www.reddit.com/message/compose/?to='+userpair[0]+'">Send '+ userpair[0] + ' a Message.</a></li> <li><a target="_blank" href="https://www.reddit.com/user/'+userpair[0]+'">View Comment History</a></li></ul>');
             $("#robinUserList").append(
-                $("<div class='robin-room-participant robin--user-class--user robin--presence-class--" + mutedHere + votestyle + "'></div>")
+		name_area
                 .append("<span class='robin--icon'></span><span class='robin--username' style='color:" + colorFromName(userpair[0]) + "'>" + userpair[0] + "</span>" + "<span class=\"robin-message--message\"style=\"font-size: 10px;\"> &nbsp;" + datestring + "</span>")
             );
         });
