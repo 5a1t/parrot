@@ -554,8 +554,12 @@
     {
         // Sort the channels
         var channels = [];
-        for(var channel in activeChannelsCounts)
-            channels.push(channel);
+        for(var channel in activeChannelsCounts){
+			if (activeChannelsCounts[channel] > 1){
+				channels.push(channel);
+			}
+		}
+            
         channels.sort(function(a,b) {return activeChannelsCounts[a] - activeChannelsCounts[b];});
         
         // Build the table
