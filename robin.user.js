@@ -396,6 +396,14 @@
         getChannelMessageList(selectedChannel).empty();
     }
 
+    function setRobinMessageVisibility() {
+      var prop;
+      (settings.removeRobinMessages) ? prop = "none" : prop = "block"
+
+      $('#robinMessageVisiblity')
+          .text('.robin-message.robin--flair-class--no-flair.robin--user-class--system {display: ' + prop + ';}');
+    }
+
     function toggleSidebarPosition(setting) {
         settings = settings || setting;
         var elements = {
@@ -581,6 +589,7 @@
     Settings.addBool("alignment", "Right align usernames", true);
     Settings.addInput("username_bg", "Custom background color on usernames", "");
 
+    Settings.addBool("removeRobinMessages", "Hide [robin] messages everywhere", false, setRobinMessageVisibility);
     Settings.addBool("removeChanMessageFromGlobal", "Hide channel messages in Global", false);
     Settings.addBool("filterChannel", "Hide non-channel messages in Global", false, function() { buildDropdown(); });
     Settings.addInput("channel", "<label>Channel Listing<ul><li>Multi-room-listening with comma-separated rooms</li><li>Names are case-insensitive</li><li>Spaces are NOT stripped</li></ul></label>", "%parrot", function() { buildDropdown(); resetChannels(); });
@@ -612,6 +621,9 @@
     $("#blockedUserContainer").append("<div id='blockedUserList' class='robin-chat--sidebar-widget robin-chat--user-list-widget'></div>");
 
     $("#settingContent").append('<div class="robin-chat--sidebar-widget robin-chat--report" style="text-align:center;"><a target="_blank" href="https://www.reddit.com/r/parrot_script/">parrot' + versionString + '</a></div>');
+
+    $('head').append('<style id="robinMessageVisiblity"></style>');
+    setRobinMessageVisibility();
     // Options end
     // Settings end
 
