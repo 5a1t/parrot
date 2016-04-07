@@ -3,7 +3,7 @@
 #SPECIAL THANK YOU TO https://github.com/vartan FOR MAKING THE BASE ROBIN-GROW. WTIHTOUT ROBIN-GROW, PARROT WOULDN'T EXIST THE WAY IT IS. PLEASE GIVE HIM A THANK YOU: https://github.com/vartan/robin-grow/issues/162
 #SO LONG AND THANKS FOR ALL THE MEMORIES!
 
-![](wedidit.png)
+![](grand_finale.png)
 
 ------
 
