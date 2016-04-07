@@ -1394,7 +1394,7 @@
                 var thisUser = $user.text();
                 var $message = $(jq[0]).find('.robin-message--message');
                 var messageText = $message.text();
-                
+
                 // Channel Discovery - /u/mofosyne
                 var tokenisedMsg = messageText.split(" ");
                 var channelName = tokenisedMsg[0];
@@ -1423,13 +1423,9 @@
                     //console.log(" channelDiscoveryList: "+channelDiscoveryList);
                 }
 
-<<<<<<< HEAD
-                // Channel Private Messaging
-                var chanName = selChanName();
-=======
+
                 // Decryption
                 var chanName = hasChannel(messageText).name;
->>>>>>> upstream/master
                 if (messageText.indexOf(chanName + "em:") == 0) {
                     var plainMessage = "";
                     for (index = (chanName + "em:").length; index < messageText.length; index += 2)
