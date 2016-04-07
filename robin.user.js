@@ -63,7 +63,7 @@
         }
 
         $("#chat-prepend-select").html(drop_html);
-        $("#chat-prepend-select").on("change", function() { updateMessage(); });
+        $("#chat-prepend-select").on("change", function() { updateTextCounter(); });
     }
 
     function updateUserPanel(){
@@ -109,24 +109,7 @@
         channel_array = getChannelList();
         source = String(source).toLowerCase();
 
-        for (idx = 0; idx < channel_array.length; idx++)
-        {
-            var current_chan = channel_array[idx];
-
-            if (source.startsWith(current_chan.toLowerCase())) {
-                return {
-                    name: current_chan,
-                    has: true,
-                    index: idx
-                };
-            }
-        }
-
-        return {
-            name: "",
-            has: false,
-            index: 0
-        };
+        return hasChannelFromList(source, channel_array, false);
     }
 
     function hasChannelFromList(source, channels, shall_trim, ignore_empty)
@@ -916,9 +899,9 @@
         event.preventDefault();
         // Get clicked username and previuos input source
         var username = String($(this).text()).trim();
-        var source = String($("#robinMessageTextAlt").val());
+        var source = String($("#robinMessageText").val());
         // Focus textarea and set the value of textarea
-        $("#robinMessageTextAlt").focus().val("").val(source + " " + username + " ");
+        $("#robinMessageText").focus().val("").val(source + " " + username + " ");
     });
 
     function listMutedUsers() {
@@ -970,7 +953,7 @@
              day: "2-digit", hour: "2-digit", minute: "2-digit"
         };
 
-        $("#robinUserList").html("");
+        $("#robinUserList").html("<h4>Total Actives: " + actives.length + "<h4>");
 
         $.each(actives, function(index,userpair){
             var mutedHere = "present";
@@ -1109,7 +1092,7 @@
         for (i = -1; i < channelList.length; i++)
             setChannelSelected(getChannelTab(i), getChannelMessageList(i), channelIndex == i);
 
-        updateMessage();
+        updateTextCounter();
     }
 
     function markChannelChanged(index)
@@ -1247,46 +1230,29 @@
         return dropdownChannel();
     }
 
-    function updateTextCounter(chanPrefix)
+    function updateTextCounter()
     {
-        var maxLength = 140;
-
-        var $robinMessageText = $("#robinMessageText");
-        var completeMessage = $robinMessageText.val();
-
-        // small channel names with a full message body switched to a long channel name
-        // cause robinMessageText to overflow out of bounds
-        // this truncates the message to the limit
-        if (completeMessage.length > maxLength) {
-            completeMessage = completeMessage.substr(0, maxLength);
-            $robinMessageText.val(completeMessage);
-        }
-
-        // subtract the channel prefix from the maxLength
-        $("#robinMessageTextAlt").attr('maxLength', maxLength - chanPrefix.length);
-        $("#textCounterDisplayAlt").text(String(Math.max(maxLength - completeMessage.length), 0));
-    }
-
-    //
-    // Update the message prepared for sending to server
-    //
-    function updateMessage()
-    {
-        var source = $("#robinMessageTextAlt").val();
-        var dest = $("#robinMessageText");
-
         var chanPrefix = selChanName();
         if (chanPrefix.length > 0)
             chanPrefix += " ";
 
-        if (source.startsWith("/me "))
-            dest.val("/me " + chanPrefix + source.substring(4));
-        else if (source.startsWith("/"))
-            dest.val(source);
-        else
-            dest.val(chanPrefix + source);
+        var maxLength = 140 - chanPrefix.length;
 
-        updateTextCounter(chanPrefix);
+        var $robinMessageText = $("#robinMessageText");
+        var message = $robinMessageText.val();
+        var messageLength = message.length;
+
+        // small channel names with a full message body switched to a long channel name
+        // cause robinMessageText to overflow out of bounds
+        // this truncates the message to the limit
+        if (messageLength > maxLength) {
+            message = message.substr(0, maxLength);
+            $robinMessageText.val(message);
+        }
+
+        // subtract the channel prefix from the maxLength
+        $("#robinMessageText").attr('maxLength', maxLength);
+        $("#textCounterDisplayAlt").text(String(Math.max(maxLength - message.length), 0));
     }
 
     var pastMessageQueue = [];
@@ -1315,32 +1281,46 @@
 
     function onMessageBoxSubmit()
     {
-        var message =  $("#robinMessageTextAlt").val();
-        if(message.indexOf("@cipher") == 0 || message.indexOf("@c") == 0)
-        {
+        var chanName = selChanName();
+        var message =  $("#robinMessageText").val();
+        var dest = $("#robinMessageText");
+
+        if(message.indexOf("@cipher") == 0 || message.indexOf("@c") == 0) {
             var encryption_cue = message.indexOf("@cipher") == 0 ? "@cipher" : "@c";
-
-            var mes2 = $.trim(message.substr(encryption_cue.length));
-
-            //hide message if not properly decrypted.
-            mes2 = "88z48" + mes2;
-            //var atWho = $.trim(mes2.substring(0,mes2.indexOf(" ")));
-            //mes2 = $.trim(mes2.substring(mes2.indexOf(" ")));
-
+            var mes2 = "88z48" + $.trim(message.substr(encryption_cue.length));
             var key = aesjs.util.convertStringToBytes(String(settings['cipherkey']));
             var textBytes = aesjs.util.convertStringToBytes(mes2);
             var aesCtr = new aesjs.ModeOfOperation.ctr(key);
             var encryptedBytes = aesCtr.encrypt(textBytes);
-            var result = encryptedBytes.map(function (x) {
-                return x.toString(36);
-            });
-            mes2=result.toString();
-            var chanName = selChanName();
-             $("#robinMessageTextAlt").val(chanName + "em:"+mes2);
-             $("#robinMessageText").val(chanName + "em:"+mes2);
+            var result = "";
+
+            for (index = 0; index <encryptedBytes.length; index++)
+            {
+                var c = encryptedBytes[index].toString(36);
+                if (c.length == 1) c += "A";
+                result += c;
+            }
+            dest.val(chanName + "em:" + result);
+            updateTextCounter();
         }
+        else {
+            var chanPrefix = selChanName();
+
+            if (chanPrefix.length > 0)
+                chanPrefix += " ";
+
+            if (message.startsWith("/me "))
+                dest.val("/me " + chanPrefix + message.substring(4));
+            else if (message.startsWith("/"))
+                dest.val(message);
+            else
+                dest.val(chanPrefix + message);
+
+            updateTextCounter();
+        }
+
         updatePastMessageQueue(message);
-$("#robinMessageTextAlt").val("");
+        setTimeout(updateTextCounter, 50);
     }
 
     function onMessageBoxKeyUp(e)
@@ -1348,7 +1328,7 @@ $("#robinMessageTextAlt").val("");
         var key = e.keyCode ? e.keyCode : e.charCode;
         key = key || e.which;
 
-        if (key != 9 && key != 38 && key != 40)
+        if (key != 38 && key != 40)
             return;
 
         e.preventDefault();
@@ -1356,51 +1336,30 @@ $("#robinMessageTextAlt").val("");
         e.stopImmediatePropagation();
 
         var source = $("#robinMessageText").val();
-        var sourceAlt = $("#robinMessageTextAlt").val();
         var chanName = selChanName();
         var namePart = "";
-
-        // Tab - Auto Complete
-        if (settings.enableTabComplete && key == 9 && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey && source.toLowerCase().startsWith(chanName.toLowerCase()) && sourceAlt !== '') {
-            sourceAlt = source.substring(chanName.length).trim();
-            var space=sourceAlt.lastIndexOf(" ");
-            namePart = sourceAlt.substring(space).trim();
-            sourceAlt = sourceAlt.substring(0, sourceAlt.lastIndexOf(" "));
-            list = config.robin_user_list;
-            $(list).each(function(){
-                if(this.name.indexOf(namePart) == 0){
-                    namePart=(this.name);
-                    if(space!=-1)namePart=" "+namePart;
-                    return true;
-                }
-            });
-            $("#robinMessageTextAlt").val(sourceAlt+namePart);
-            sourceAlt=chanName+" "+sourceAlt;
-            $("#robinMessageText").val(sourceAlt+namePart);
-            return;
-        }
 
         // Up Arrow - Message History
         if (key == 38 && pastMessageQueue.length > pastMessageQueueIndex) {
             if (pastMessageQueueIndex === 0) {
-                pastMessageTemp = sourceAlt;
+                pastMessageTemp = source;
             }
 
-            sourceAlt = pastMessageQueue[pastMessageQueueIndex++];
+            source = pastMessageQueue[pastMessageQueueIndex++];
         }
         // Down Arrow - Message History
         else if (key == 40 && pastMessageQueueIndex > 0) {
             pastMessageQueueIndex--;
 
             if (pastMessageQueueIndex === 0) {
-                sourceAlt = pastMessageTemp;
+                source = pastMessageTemp;
             } else {
-                sourceAlt = pastMessageQueue[pastMessageQueueIndex - 1];
+                source = pastMessageQueue[pastMessageQueueIndex - 1];
             }
         }
 
-        $("#robinMessageTextAlt").val(sourceAlt);
-        updateMessage();
+        $("#robinMessageText").val(source);
+        updateTextCounter();
     }
 
     $('.robin-chat--header').click(function() {
@@ -1440,10 +1399,13 @@ $("#robinMessageTextAlt").val("");
                 var $message = $(jq[0]).find('.robin-message--message');
                 var messageText = $message.text();
 
+                // Decryption
+                var chanName = hasChannel(messageText).name;
+                if (messageText.indexOf(chanName + "em:") == 0) {
+                    var plainMessage = "";
+                    for (index = (chanName + "em:").length; index < messageText.length; index += 2)
+                        plainMessage += ((plainMessage.length > 0 ? "," : "") + messageText.substring(index, index + 2).replace("A", ""));
 
-                var chanName = selChanName();
-                var plainMessage= messageText.replace(chanName+"em:",'');
-                if(messageText.indexOf(chanName + "em:")==0){
                     var key = aesjs.util.convertStringToBytes(String(settings['cipherkey']));
                     var aesCtr = new aesjs.ModeOfOperation.ctr(key);
                     var hexList = plainMessage.split(",");
@@ -1463,7 +1425,7 @@ $("#robinMessageTextAlt").val("");
                         $(jq[0]).remove();
                     }
                     else {
-                        $(jq[0]).find('.robin-message--message').text(chanName+"<Decrypted message> "+decryptedText.substring(5));
+                        $(jq[0]).find('.robin-message--message').text(chanName+"<Crypto> "+decryptedText.substring(5));
                     }
                 }
 
@@ -1497,7 +1459,7 @@ $("#robinMessageTextAlt").val("");
 
                 var is_muted = (thisUser && mutedList.indexOf(thisUser) >= 0);
                 var is_spam = (settings.removeSpam && isBotSpam(messageText));
-                var results_chan = hasChannel(messageText, getChannelString());
+                var results_chan = hasChannel(messageText);
 
                 var remove_message = is_muted || is_spam;
 
@@ -1508,8 +1470,8 @@ $("#robinMessageTextAlt").val("");
                     if (messageText.toLowerCase().startsWith(chanName.toLowerCase()))
                         messageText = messageText.substring(chanName.length).trim();
 
-                    $("#robinMessageTextAlt").val(messageText);
-                    updateMessage();
+                    $("#robinMessageText").val(messageText);
+                    updateTextCounter();
                 }
 
                 remove_message = remove_message && !jq.hasClass("robin--user-class--system");
@@ -1529,7 +1491,7 @@ $("#robinMessageTextAlt").val("");
 
                     //still show mentions in highlight color.
 
-                    var result = hasChannel(messageText, getChannelString());
+                    var result = hasChannel(messageText);
 
                     if(result.has) {
                         $message.parent().css("background", colors_match[result.name]);
@@ -1636,7 +1598,10 @@ $("#robinMessageTextAlt").val("");
         mutations.forEach(function(mutation) {
             if (mutation.addedNodes.length > 0) {
                 var usernameSpan = mutation.addedNodes[0].children[1];
-                usernameSpan.style.color = colorFromName(usernameSpan.innerHTML);
+				// This may need to be fixed. Until then, I'm adding this if statement to prevent errors flooding the console.
+				if (usernameSpan) {
+					usernameSpan.style.color = colorFromName(usernameSpan.innerHTML);
+				}
             }
         });
     });
@@ -1646,33 +1611,23 @@ $("#robinMessageTextAlt").val("");
     var currentUserColor = colorFromName(currentUsersName);
     $('<style>.robin--user-class--self .robin--username { color: ' + currentUserColor + ' !important; }</style>').appendTo('body');
 
-    // Message input box (hidden)
     $(".text-counter-input").attr("id", "robinMessageText");
+    $("#robinMessageText").on("input", function() { updateTextCounter(); });
+    $("#robinMessageText").on("keyup", function(e) { onMessageBoxKeyUp(e); });
 
     $(".text-counter-display")
         .css("display", "none")
         .after('<span id="textCounterDisplayAlt">140</span>');
 
-    $("#robinSendMessage").append('<input type="text" id="robinMessageTextAlt" class="c-form-control text-counter-input" name="messageAlt" autocomplete="off" maxlength="140" required="">');
-    $("#robinMessageText").css("display", "none");
-    // Alternate message input box (doesn't show the channel prefixes)
-    $("#robinMessageTextAlt").on("input", function() { updateMessage(); });
-    $("#robinMessageTextAlt")
-        .on("keydown", function(e) {
-            var key = e.keyCode ? e.keyCode : e.charCode
-            key = key || e.which;
-            if (key != 9) return;
-
-            e.preventDefault();
-            // e.stopPropagation();
-            // e.stopImmediatePropagation();
-            // return false;
-        })
-        .on("keyup", function(e) { onMessageBoxKeyUp(e); });
-
     // Send message button
-    $("#robinSendMessage").append('<div onclick={$(".text-counter-input").submit();} class="robin-chat--vote" id="sendBtn">Send Message</div>'); // Send message
+    $("#robinSendMessage").append('<div id="sendBtn" class="robin-chat--vote">Send Message</div>'); // Send message
+
+    // Submit message by pressing enter
     $("#robinSendMessage").on("submit", function() { onMessageBoxSubmit(); } );
+
+    // Submit message by clicking button
+    $("#robinSendMessage").append('<input id="sendBtnHidden" type="button" onclick=\'$(".text-counter-input").submit()\' style="display:none;"></input>');
+    $("#sendBtn").on("click", function() { onMessageBoxSubmit(); $("#sendBtnHidden").trigger('click'); } );
 
     // Setup page for tabbed channels
     setupMultiChannel();
