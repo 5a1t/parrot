@@ -1469,6 +1469,10 @@
         var index = chanName.indexOf("<Crypto>");
         if (index >= 0)
             chanName = chanName.substring(0, index);
+        
+        index = chanName.indexOf("em:");
+        if (index >= 0)
+            chanName = chanName.substring(0, index);
 
         index = chanName.indexOf(" ");
         if (index >= 0)
@@ -2172,21 +2176,19 @@
         } \
     \
         /* Styles for tab bar */ \
+        .robin-chat .robin-chat--header { \
+            padding: 10px 20px 20px 20px !important; \
+        } \
         [id^='robinChannelLink'] { \
             width:10%; \
             display:inline-block; \
         } \
-        #robinChannelList {         \
-            width: 72%!important;   \
-            top: 105px!important;   \
-        }  \
         ul#robinChannelList { \
             list-style-type: none; \
             margin: 0px; \
             padding:0.3em 0; \
             position:absolute; \
-            top:95px; \
-            width:85%; \
+            top:97px; \
         } \
         ul#robinChannelList li { \
             display: inline; \
@@ -2197,9 +2199,11 @@
             background-color: #dedbde; \
             border: 1px solid #c9c3ba; \
             border-bottom: none; \
-            padding:2px 30px!important; \
+            padding:2px 5px!important; \
             text-decoration: none; \
             font-size:1em; \
+            min-width: 60px; \
+            text-align: center; \
         } \
         ul#robinChannelList li a:hover { \
             background-color: #f1f0ee; \
