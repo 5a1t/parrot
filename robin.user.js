@@ -1263,8 +1263,6 @@
             $videoContainer.find(".press-play").on("click", function() {
                 $(this).off();
                 var youtubeId = $(this).val();
-                console.debug(this);
-                console.log(youtubeId);
                 var youtubeURL = "//www.youtube.com/embed/" + youtubeId + "?autoplay=1&autohide=1&enablejsapi=1";
                 var iframe = "<iframe class='media-embed' type='text/html' width=400 height=300 src='"+ youtubeURL + "' frameBorder=0 allowFullScreen />";
                 $(this).parent().html(iframe);
