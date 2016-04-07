@@ -606,6 +606,7 @@
 
     Settings.addBool("tabChanColors", "Use color on channel tabs", true);
     Settings.addBool("twitchEmotes", "Twitch emotes (<a href='https://twitchemotes.com/filters/global' target='_blank'>Normal</a>, <a href='https://nightdev.com/betterttv/faces.php' target='_blank'>BTTV</a>)", false);
+    Settings.addBool("youtubeVideo", "Inline youtube videos", false);
     Settings.addBool("timeoutEnabled", "Reload page after inactivity timeout", true);
     Settings.addInput("messageHistorySize", "Sent Message History Size", "50");
     Settings.addBool("monstrousStats", "Show automated leaderboard on standings page (asks for permission)</a>", false);
@@ -639,6 +640,7 @@
     var timeStarted = new Date();
     var name = $(".robin-chat--room-name").text();
     var urlRegex = new RegExp(/(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?/ig);
+    var youtubeRegex = new RegExp(/.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|watch\?(?:[a-zA-Z-_]+=[a-zA-Z0-9-_]+&)+v=)([^#\&\?]*).*/);
 
     var list = {};
 
@@ -1193,6 +1195,24 @@
             if (changes) {
                 $(elem).find('.robin-message--message').html(split.join(' '));
             }
+        }
+
+        // TODO this can support vine videos too
+        if (settings.youtubeVideo) {
+            var matches = messageText.match(youtubeRegex);
+            if (!matches || matches[1].length !== 11) return;
+
+            var youtubeId = matches[1];
+            var youtubeURL = "//www.youtube.com/embed/" + youtubeId + "?autoplay=1&autohide=1&enablejsapi=1";
+            $videoContainer = $("<div class='video-container' style='width:400px;height:300px;background-color: #000;display:inline-block;position:relative;'><button class='press-play robin-chat--vote' style='margin:auto;position:absolute;top:0px;bottom:0px;left:0px;right:0px;width:100px;height:30px;'>Play Video</button><img style='width:400px;height:300px;' src='" + "//img.youtube.com/vi/" + youtubeId + "/hqdefault.jpg" + "' /></div>");
+
+            $(elem).find('.robin-message--message').append($videoContainer);
+
+            var iframe = "<iframe class='media-embed' type='text/html' width=400 height=300 src='"+ youtubeURL + "' frameBorder=0 allowFullScreen />";
+            $videoContainer.find(".press-play").on("click", function() {
+                $(this).off();
+                $videoContainer.html(iframe);
+            });
         }
     }
 
