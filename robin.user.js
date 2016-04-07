@@ -1937,9 +1937,9 @@
             }
         }
     })();
-    
-// Add blank channel to initial system messages to avoid messing up the table view
-$('.robin--user-class--system time').after('<span class="robin-message--from"></span>');
+
+    // Add blank channel to initial system messages to avoid messing up the table view
+    $('.robin--user-class--system time').after('<span class="robin-message--from"></span>');
 
     GM_addStyle(" \
         .robin--username { \
