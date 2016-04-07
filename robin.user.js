@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         parrot (color multichat for robin!)
 // @namespace    http://tampermonkey.net/
-// @version      3.63
+// @version      3.64
 // @description  Recreate Slack on top of an 8 day Reddit project.
 // @author       dashed, voltaek, daegalus, vvvv, orangeredstilton, lost_penguin, AviN456, Annon201, LTAcosta, mofosyne
 // @include      https://www.reddit.com/robin*
@@ -248,7 +248,7 @@
 
             $("#settingContent").append('<div class="robin-chat--sidebar-widget robin-chat--notification-widget"><ul><li>Click on chat name to hide sidebar</li><li>Left click usernames to mute.</li>' +
                 '<li>Right click usernames to copy to message.<li>Tab autocompletes usernames in the message box.</li><li>Ctrl+shift+left/right switches between channel tabs.</li>' +
-                '<li>Up/down in the message box cycles through sent message history.</li><li>Report any bugs or issues <a href="https://www.reddit.com/r/parrot_script/"><strong>HERE<strong></a></li>' +
+                '<li>Up/down in the message box cycles through sent message history.</li><li>Report any bugs or issues <a href="https://www.reddit.com/r/parrot_script/" target="_blank"><strong>HERE<strong></a></li>' +
                 '<li>Created for soKukuneli chat (T16)</li></ul></div>');
 
             $("#robinDesktopNotifier").detach().appendTo("#settingContent");
