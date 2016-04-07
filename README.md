@@ -13,7 +13,7 @@
 
 This is not the main branch! But it has some great additional features!
 
-Special thanks to OrangeredStilton, voltaek, Dashed, lost_penguin, Daegalus, Wakafanykai123, Stormagnet, AviN456, and all our testers.
+Special thanks to OrangeredStilton, voltaek, Dashed, lost_penguin, Daegalus, Wakafanykai123, Stormagnet, AviN456, lajiggyjarjardoo, and all our testers.
 
 ## Installation
 Install a userscript extension such as greasemonkey or tampermonkey:  
