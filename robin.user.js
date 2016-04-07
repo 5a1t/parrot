@@ -1318,22 +1318,24 @@
 
             var mes2 = $.trim(message.substr(encryption_cue.length));
 
-            //hide message if not properly decrypted.
             mes2 = "88z48" + mes2;
-            //var atWho = $.trim(mes2.substring(0,mes2.indexOf(" ")));
-            //mes2 = $.trim(mes2.substring(mes2.indexOf(" ")));
 
             var key = aesjs.util.convertStringToBytes(String(settings['cipherkey']));
             var textBytes = aesjs.util.convertStringToBytes(mes2);
             var aesCtr = new aesjs.ModeOfOperation.ctr(key);
             var encryptedBytes = aesCtr.encrypt(textBytes);
-            var result = encryptedBytes.map(function (x) {
-                return x.toString(36);
-            });
-            mes2=result.toString();
+            var result = "";
+
+            for (index = 0; index <encryptedBytes.length; index++)
+            {
+                var c = encryptedBytes[index].toString(36);
+                if (c.length == 1) c += "A";
+                result += c;
+            }
+
             var chanName = selChanName();
-             $("#robinMessageTextAlt").val(chanName + "em:"+mes2);
-             $("#robinMessageText").val(chanName + "em:"+mes2);
+            $("#robinMessageTextAlt").val(chanName + "em:" + result);
+            $("#robinMessageText").val(chanName + "em:" + result);
         }
         updatePastMessageQueue(message);
         $("#robinMessageTextAlt").val("");
@@ -1438,8 +1440,11 @@
 
 
                 var chanName = selChanName();
-                var plainMessage= messageText.replace(chanName+"em:",'');
-                if(messageText.indexOf(chanName + "em:")==0){
+                if (messageText.indexOf(chanName + "em:") == 0) {
+                    var plainMessage = "";
+                    for (index = (chanName + "em:").length; index < messageText.length; index += 2)
+                        plainMessage += ((plainMessage.length > 0 ? "," : "") + messageText.substring(index, index + 2).replace("A", ""));
+
                     var key = aesjs.util.convertStringToBytes(String(settings['cipherkey']));
                     var aesCtr = new aesjs.ModeOfOperation.ctr(key);
                     var hexList = plainMessage.split(",");
@@ -1459,7 +1464,7 @@
                         $(jq[0]).remove();
                     }
                     else {
-                        $(jq[0]).find('.robin-message--message').text(chanName+"<Decrypted message> "+decryptedText.substring(5));
+                        $(jq[0]).find('.robin-message--message').text(chanName+"<Crypto> "+decryptedText.substring(5));
                     }
                 }
 
