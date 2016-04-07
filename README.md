@@ -1,6 +1,6 @@
 # Parrot - Robin Grow Fork, modified for comma separated multi-channel listening, colors, channel selection, Twitch Emotes, and more!
 
-#SPECIAL THANK YOU TO https://github.com/vartan FOR MAKING THE BASE ROBIN-GROW. WITHOUT ROBIN-GROW, PARROT WOULDN'T EXIST THE WAY IT IS. PLEASE GIVE HIM A THANK YOU: https://github.com/vartan/robin-grow/issues/162
+##SPECIAL THANK YOU TO https://github.com/vartan FOR MAKING THE BASE ROBIN-GROW. WITHOUT ROBIN-GROW, PARROT WOULDN'T EXIST THE WAY IT IS. PLEASE GIVE HIM A THANK YOU: https://github.com/vartan/robin-grow/issues/162
 #SO LONG AND THANKS FOR ALL THE MEMORIES!
 
 ![](grand_finale.png)
@@ -13,7 +13,7 @@
 
 This is not the main branch! But it has some great additional features!
 
-Special thanks to OrangeredStilton, Voltaek, Dashed, lost_penguin, Daegalus, Wakafanykai123, Stormagnet, AviN456 and all our testers.
+Special thanks to OrangeredStilton, voltaek, Dashed, lost_penguin, Daegalus, Wakafanykai123, Stormagnet, AviN456, and all our testers.
 
 ## Installation
 Install a userscript extension such as greasemonkey or tampermonkey:  
