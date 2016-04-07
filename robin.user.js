@@ -1548,22 +1548,20 @@
             }
         });
     }
-    function countTimer(){
-        counter+=0.5;
-        if(countdown%1==0 && countdown !=0){
+    function countTimer() {
+        counter += 0.5;
+        if (countdown % 1 == 0 && countdown != 0) {
             $('#sendBtn').css('background-color', '#FF5555');
-        }else{
-            $('#sendBtn').css('background-color', 'white');
+        } else {
+            $('#sendBtn').css('background-color', '');
         }
-        if(countdown>1){
-            countdown-=0.5;
-            $('#sendBtn').html("Chat in: "+parseInt(countdown));
-        }else if(countdown==1){
+        if (countdown > 1 ) {
+            countdown -= 0.5;
+            $('#sendBtn').html("Chat in: " + parseInt(countdown));
+        } else if (countdown == 1) {
             $('#sendBtn').html("Send Message");
-
-            countdown=0;
+            countdown = 0;
         }
-
     }
 
     setInterval(update, 10000);
