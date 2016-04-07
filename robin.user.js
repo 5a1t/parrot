@@ -1291,11 +1291,11 @@
     var pastMessageQueue = [];
     var pastMessageQueueIndex = 0;
     var pastMessageTemp = "";
-    function updatePastMessageQueue()
+    function updatePastMessageQueue(message)
     {
         pastMessageQueueIndex = 0;
         pastMessageTemp = "";
-        var value = $("#robinMessageTextAlt").val();
+        var value = message;
 
         if (!value || (pastMessageQueue.length > 0 && value == pastMessageQueue[0]))
             return;
@@ -1336,7 +1336,7 @@
              $("#robinMessageTextAlt").val(chanName + "em:"+mes2);
              $("#robinMessageText").val(chanName + "em:"+mes2);
         }
-        updatePastMessageQueue();
+        updatePastMessageQueue(message);
         $("#robinMessageTextAlt").val("");
     }
 
