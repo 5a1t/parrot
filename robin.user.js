@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         parrot (color multichat for robin!)
 // @namespace    http://tampermonkey.net/
-// @version      3.58
+// @version      3.59
 // @description  Recreate Slack on top of an 8 day Reddit project.
 // @author       dashed, voltaek, daegalus, vvvv, orangeredstilton, lost_penguin, AviN456, Annon201
 // @include      https://www.reddit.com/robin*
@@ -966,7 +966,7 @@
              day: "2-digit", hour: "2-digit", minute: "2-digit"
         };
 
-        $("#robinUserList").html("");
+        $("#robinUserList").html("<h4>Total Actives: " + actives.length + "<h4>");
 
         $.each(actives, function(index,userpair){
             var mutedHere = "present";
