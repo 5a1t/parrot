@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         parrot (color multichat for robin!)
 // @namespace    http://tampermonkey.net/
-// @version      3.64
+// @version      3.65
 // @description  Recreate Slack on top of an 8 day Reddit project.
 // @author       dashed, voltaek, daegalus, vvvv, orangeredstilton, lost_penguin, AviN456, Annon201, LTAcosta, mofosyne
 // @include      https://www.reddit.com/robin*
@@ -1557,6 +1557,35 @@
                         $(jq[0]).find('.robin-message--message').text(chanName+"<Crypto> "+decryptedText.substring(5));
                         messageText = $message.text();
                     }
+					if (decryptedText.substring(5).toLowerCase().indexOf(currentUsersName.toLowerCase()) !== -1) {
+                       $message.parent().css("background","#FFA27F");
+                       notifAudio.play();
+                       userIsMentioned = true;
+					}
+					else {
+ 
+                    //still show mentions in highlight color.
+ 
+                    var result = hasChannel(decryptedText.substring(5), getChannelString());
+ 
+                    if(result.has) {
+                        $message.parent().css("background", colors_match[result.name]);
+                    }
+					else {
+ 
+                    var is_not_in_channels = (settings.filterChannel &&
+                         !jq.hasClass('robin--user-class--system') &&
+                         String(getChannelString()).length > 0 &&
+                         !results_chan.has);
+ 
+                        if (is_not_in_channels) {
+                            $message = null;
+                            $(jq[0]).remove();
+ 
+                            return;
+                        }
+                    }
+					}
                 }
                 
                 var is_muted = (thisUser && mutedList.indexOf(thisUser) >= 0);
