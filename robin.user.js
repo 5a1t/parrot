@@ -199,6 +199,7 @@
             $robinVoteWidget.prepend("<div class='addon'><div class='timeleft robin-chat--vote info-box-only'></div></div>");
             $robinVoteWidget.prepend('<div class="addon" id="openBtn_wrap"><div class="robin-chat--vote" id="openBtn">Open Settings</div></div>');
             $robinVoteWidget.append('<div class="addon"><div class="robin-chat--vote" id="standingsBtn">Show Standings</div></div>');
+            $robinVoteWidget.append('<div class="addon"><div class="robin-chat--vote" id="channelsBtn">Show Most Active Channels</div></div>');
             $("#openBtn_wrap").prepend('<div class="robin-chat--sidebar-widget">' +
                 '<a target="_blank" href="https://www.reddit.com/r/parrot_script/"><div class="robin-chat--vote">' +
                 '<img src="https://i.imgur.com/ch75qF2.png">Parrot</div><p>soKukunelits fork ~ ' + versionString + '</p></a></div>');
@@ -227,6 +228,19 @@
                      '</div>' +
                  '</div>'
             );
+            
+            // Active channels container
+            $("#settingContainer").before(
+                '<div class="robin-chat--sidebar" style="display:none;" id="channelsContainer">' +
+                    '<div class="robin-chat--sidebar-widget robin-chat--vote-widget" id="channelsContent">' +
+                        '<div id="channelsTable">' +
+                            '<div>Most Active Channels (experimental)</div><br/>' +
+                            '<div id="activeChannelsTable"></div><br/>' +
+                        '</div>' +
+                        '<div class="robin-chat--vote" id="closeChannelsBtn">Close Channel List</div>' +
+                     '</div>' +
+                 '</div>'
+            );
 
             $("#settingContent").append('<div class="robin-chat--sidebar-widget robin-chat--notification-widget"><ul><li>Click on chat name to hide sidebar</li><li>Left click usernames to mute.</li>' +
                 '<li>Right click usernames to copy to message.<li>Tab autocompletes usernames in the message box.</li><li>Ctrl+shift+left/right switches between channel tabs.</li>' +
@@ -244,6 +258,7 @@
                 $(".robin-chat--sidebar").show();
                 $("#settingContainer").hide();
                 $("#standingsContainer").hide();
+                $("#channelsContainer").hide();
                 tryHide();
                 update();
             });
@@ -257,6 +272,21 @@
             $("#closeStandingsBtn").on("click", function closeStandings() {
                 $(".robin-chat--sidebar").show();
                 stopStandings();
+                $("#standingsContainer").hide();
+                $("#settingContainer").hide();
+                $("#channelsContainer").hide();
+            });
+            
+            $("#channelsBtn").on("click", function openChannels() {
+                $(".robin-chat--sidebar").hide();
+                startChannels();
+                $("#channelsContainer").show();
+            });
+
+            $("#closeChannelsBtn").on("click", function closeChannels() {
+                $(".robin-chat--sidebar").show();
+                stopChannels();
+                $("#channelsContainer").hide();
                 $("#standingsContainer").hide();
                 $("#settingContainer").hide();
             });
@@ -513,6 +543,50 @@
     if (standingsInterval){
             clearInterval(standingsInterval);
             standingsInterval = 0;
+        }
+    }
+    
+    function updateChannels()
+    {
+        // Sort the channels
+        var channels = [];
+        for(var channel in activeChannelsCounts)
+            channels.push(channel);
+        channels.sort(function(a,b) {return activeChannelsCounts[a] - activeChannelsCounts[b];});
+        
+        // Build the table
+        var html = "<table>\r\n" +
+                   "<thead>\r\n" +
+                   "<tr><th>#</th><th>Channel Name</th></tr>\r\n" +
+                   "</thead>\r\n" +
+                   "<tbody>\r\n";
+                   
+        var limit = 50;
+        if (channels.length < limit)
+            limit = channels.length;
+        
+        for (var i = 0; i < limit; i++) {
+            html += "<tr><td>" + (i+1) + "</td><td>" + channels[i] + "</td></tr>\r\n";
+        }
+                    
+        html += "</tbody>\r\n" +
+                "</table>\r\n" +
+                '<br/>';
+                
+        $("#activeChannelsTable").html(html);
+    }
+    
+    var channelsInterval = 0;
+    function startChannels() {
+        stopChannels();
+        channelsInterval = setInterval(updateChannels, 30000);
+        updateChannels();
+    }
+
+    function stopChannels() {
+    if (channelsInterval){
+            clearInterval(channelsInterval);
+            channelsInterval = 0;
         }
     }
 
@@ -1383,6 +1457,45 @@
         $("#robinMessageTextAlt").val(sourceAlt);
         updateMessage();
     }
+    
+    // Monitor the most active channels.
+    var activeChannelsQueue = [];
+    var activeChannelsCounts = {};
+    function updateMostActiveChannels(messageText) 
+    {
+        var chanName = messageText;
+        
+        if (!chanName)
+            return;
+        
+        // To simplify things, we're going to start by only handling channels that start with punctuation.
+        if (!chanName.match(/^[!"#$%&\\'()\*+,\-\.\/:;<=>?@\[\]\^_`{|}~]/))
+            return;
+        
+        var index = chanName.indexOf("em:");
+        if (index >= 0)
+            chanName = chanName.substring(0, index);
+        
+        index = chanName.indexOf(" ");
+        if (index >= 0)
+            chanName = chanName.substring(0, index);
+        
+        if (!chanName || chanName == messageText)
+            return;
+        
+        chanName = chanName.toLowerCase();
+        activeChannelsQueue.unshift(chanName);
+        
+        if (!activeChannelsCounts[chanName]) {
+            activeChannelsCounts[chanName] = 0;
+        }
+        activeChannelsCounts[chanName]++;
+        
+        if (activeChannelsQueue.length > 5000){
+            var oldChanName = activeChannelsQueue.pop();
+            activeChannelsCounts[oldChanName]--;            
+        }
+    }
 
     $('.robin-chat--header').click(function() {
         $(".robin-chat--sidebar").toggleClass("sidebarminimized");
@@ -1420,6 +1533,7 @@
                 var thisUser = $user.text();
                 var $message = $(jq[0]).find('.robin-message--message');
                 var messageText = $message.text();
+                updateMostActiveChannels(messageText);
 
                 // Decryption
                 var chanName = hasChannel(messageText).name;
@@ -1448,7 +1562,7 @@
                     }
                     else {
                         $(jq[0]).find('.robin-message--message').text(chanName+"<Crypto> "+decryptedText.substring(5));
-						messageText = $message.text();
+                        messageText = $message.text();
                     }
                 }
 
@@ -1621,10 +1735,10 @@
         mutations.forEach(function(mutation) {
             if (mutation.addedNodes.length > 0) {
                 var usernameSpan = mutation.addedNodes[0].children[1];
-				// This may need to be fixed. Until then, I'm adding this if statement to prevent errors flooding the console.
-				if (usernameSpan) {
-					usernameSpan.style.color = colorFromName(usernameSpan.innerHTML);
-				}
+                // This may need to be fixed. Until then, I'm adding this if statement to prevent errors flooding the console.
+                if (usernameSpan) {
+                    usernameSpan.style.color = colorFromName(usernameSpan.innerHTML);
+                }
             }
         });
     });
@@ -1857,7 +1971,8 @@
         #openBtn, \
         #closeBtn, \
         #sendBtn, \
-        #standingsBtn { \
+        #standingsBtn, \
+        #channelsBtn { \
             cursor: pointer; \
         } \
         #openBtn_wrap { \
@@ -1876,6 +1991,11 @@
             height:15px; \
         } \
         #standingsContent .robin-chat--vote { \
+            cursor: pointer; \
+            font-weight: bold; \
+            margin-left: 0; \
+        } \
+        #channelsContent .robin-chat--vote { \
             cursor: pointer; \
             font-weight: bold; \
             margin-left: 0; \
@@ -2009,6 +2129,14 @@
             font-weight: bold; \
         } \
         #standingsTable > div:first-child { \
+            font-weight: bold; \
+            text-align: center; \
+        } \
+        #channelsTable table {width: 100%} \
+        #channelsTable table th { \
+            font-weight: bold; \
+        } \
+        #channelsTable > div:first-child { \
             font-weight: bold; \
             text-align: center; \
         } \
