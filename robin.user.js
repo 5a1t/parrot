@@ -2052,6 +2052,7 @@
             } \
             #sendBtn, #clear-chat-button { \
                 margin-bottom: 0; \
+                margin-right: 0; \
             } \
             .robin-chat .robin-chat--body { \
                 /* 130 is height of reddit header, chat header, and remaining footer */ \
