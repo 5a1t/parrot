@@ -1741,6 +1741,9 @@ GM_addStyle(" \
         word-wrap: normal; \
         word-break: normal; \
     } \
+    .robin-message time, .robin--username { \
+        white-space: nowrap; \
+    } \
     .robin--username { \
         cursor: pointer; \
     } \
