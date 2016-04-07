@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         parrot (color multichat for robin!)
 // @namespace    http://tampermonkey.net/
-// @version      3.60
+// @version      3.62
 // @description  Recreate Slack on top of an 8 day Reddit project.
 // @author       dashed, voltaek, daegalus, vvvv, orangeredstilton, lost_penguin, AviN456, Annon201
 // @include      https://www.reddit.com/robin*
@@ -113,7 +113,7 @@
         return hasChannelFromList(source, channel_array, false);
     }
 
-    function hasChannelFromList(source, channels, shall_trim)
+    function hasChannelFromList(source, channels, shall_trim, ignore_empty)
     {
         channel_array = channels;
         source = shall_trim ? String(source).toLowerCase().trim() : String(source).toLowerCase();
@@ -121,6 +121,10 @@
         for (idx = 0; idx < channel_array.length; idx++)
         {
             var current_chan = shall_trim ? channel_array[idx].trim() : channel_array[idx];
+
+            if(ignore_empty && current_chan.length <= 0) {
+                continue;
+            }
 
             if(source.startsWith(current_chan.toLowerCase())) {
                 return {
@@ -1317,6 +1321,7 @@
         }
 
         updatePastMessageQueue(message);
+        setTimeout(updateTextCounter, 50);
     }
 
     function onMessageBoxKeyUp(e)
@@ -1459,7 +1464,7 @@
                 //updateUserPanel();
 
                 var exclude_list = String(settings.channel_exclude).split(",");
-                var results_chan_exclusion = hasChannelFromList(messageText, exclude_list, true);
+                var results_chan_exclusion = hasChannelFromList(messageText, exclude_list, true, true);
 
                 if (exclude_list.length > 0, String(settings.channel_exclude).trim().length > 0 && results_chan_exclusion.has) {
                     $message = null;
