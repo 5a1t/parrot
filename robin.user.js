@@ -1374,9 +1374,10 @@
                 if(String(settings['username_bg']).length > 0) {
                     $user.css("background",  String(settings['username_bg']));
                 }
-                if (settings['alignment'])
-                    $user.addClass('robin--username-align-right');
 
+                var alignedUser = settings['alignment'] ? $user.html().lpad('&nbsp;', 20) : $user.html().rpad('&nbsp;', 20);
+
+                $user.html(alignedUser);
         var stylecalc = "";
         if(settings.fontstyle !== ""){
             stylecalc = '"'+settings.fontstyle.trim()+'"' + ",";
@@ -1459,9 +1460,7 @@
                 if (!results_chan.has || !settings.removeChanMessageFromGlobal)
                     markChannelChanged(-1);
 
-                // If user is [robin], then we should only add the channel prefix if we're in
-                // the Global channel.
-                if (!settings.removeChanMessageFromGlobal && (thisUser.indexOf("[robin]") ==-1 || selectedChannel == -1))
+                if (!settings.removeChanMessageFromGlobal)
                 {
                     if(results_chan.has) {
                         messageText = messageText.substring(results_chan.name.length).trim();
@@ -1471,7 +1470,7 @@
                     // This needs to be done after any changes to the $message.text() since they will overwrite $message.html() changes
                     convertTextToSpecial(messageText, jq[0]);
 
-                    $("<span class='robin-message--from'><strong>" + results_chan.name + "</strong></span>").css("font-family", '"Lucida Console", Monaco, monospace')
+                    $("<span class='robin-message--from'><strong>" + results_chan.name.lpad("&nbsp", 6) + "</strong></span>").css("font-family", '"Lucida Console", Monaco, monospace')
                         .css("font-size", "12px")
                         .insertAfter($timestamp);
                 }
@@ -1743,30 +1742,9 @@
         }
     })();
 
-// Add blank channel to initial system messages to avoid messing up the table view
-$('.robin--user-class--system time').after('<span class="robin-message--from"></span>');
-
 GM_addStyle(" \
-    #robinChatWindow .robin-chat--message-list { \
-        display: table; \
-    } \
-    .robin-chat--message-list .robin-message { \
-        display: table-row; \
-    } \
-    .robin-message time, .robin-message span { \
-        display: table-cell; \
-        padding: 0 5px; \
-        word-wrap: normal; \
-        word-break: normal; \
-    } \
-    .robin-message time, .robin--username { \
-        white-space: nowrap; \
-    } \
     .robin--username { \
-        cursor: pointer; \
-    } \
-    .robin--username-align-right { \
-        text-align: right; \
+        cursor: pointer \
     } \
     #settingContent { \
         overflow-y: scroll; \
