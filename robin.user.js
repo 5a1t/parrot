@@ -560,7 +560,7 @@
             }
         }
 
-        channels.sort(function(a,b) {return activeChannelsCounts[a] - activeChannelsCounts[b];});
+        channels.sort(function(a,b) {return activeChannelsCounts[b] - activeChannelsCounts[a];});
 
         // Build the table
         var html = "<table>\r\n" +
