@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         parrot (color multichat for robin!)
 // @namespace    http://tampermonkey.net/
-// @version      3.29
+// @version      3.41
 // @description  Recreate Slack on top of an 8 day Reddit project.
 // @author       dashed, voltaek, daegalus, vvvv, orangeredstilton, lost_penguin, AviN456, Annon201
 // @include      https://www.reddit.com/robin*
@@ -91,11 +91,18 @@
     }
 
     function updateUserPanel(){
+
+	var options = {
+		month: "2-digit",
+		 day: "2-digit", hour: "2-digit", minute: "2-digit"
+	};
+
 	$(".robin-room-participant").each( function(){
 		lastseen = userExtra[$(this).find(".robin--username").text().trim()];
 		if(lastseen){
+			datestring = lastseen.toLocaleTimeString("en-us", options);
 			$( this ).find(".robin--username").nextAll().remove();
-			$( this ).find(".robin--username").after("<span class=\"robin-message--message\"style=\"font-size: 10px;\"> &nbsp;" + lastseen + "</span>");
+			$( this ).find(".robin--username").after("<span class=\"robin-message--message\"style=\"font-size: 10px;\"> &nbsp;" + datestring + "</span>");
 		}
 	});
 
@@ -200,18 +207,34 @@
 
         load: function loadSetting() {
             var userExtra = localStorage.getItem('parrot-user-extra');
+            var users_version = localStorage.getItem('parrot-user-version');
 
             try {
                 userExtra = userExtra ? JSON.parse(userExtra) : {};
-            } catch(e) {}
+            } catch(e) { console.log("Error parsing userExtra..");}
+
 
             userExtra = userExtra || {};
 
-            return userExtra;
+		if(users_version == 12){
+			console.log("found a good user list!");
+            		//return userExtra;
+			//JSON.stringify is returning undefined.. Reset list each time for now. Will fix.
+			return {};
+		}
+		else{
+			console.log("found a bad user list, resetting!");
+            		localStorage.setItem('parrot-user-extra', JSON.stringify({}));
+	      		return {};
+		}
         },
 
         save: function saveSetting(userExtra) {
+	    //console.log("Saving");
+            //console.log(userExtra);
+	    //console.log(JSON.stringify(userExtra));
             localStorage.setItem('parrot-user-extra', JSON.stringify(userExtra));
+            localStorage.setItem('parrot-user-version', 12);
         }
 
 
@@ -396,6 +419,14 @@
         getChannelMessageList(selectedChannel).empty();
     }
 
+    function setRobinMessageVisibility() {
+      var prop;
+      (settings.removeRobinMessages) ? prop = "none" : prop = "block"
+
+      $('#robinMessageVisiblity')
+          .text('.robin-message.robin--flair-class--no-flair.robin--user-class--system {display: ' + prop + ';}');
+    }
+
     function toggleSidebarPosition(setting) {
         settings = settings || setting;
         var elements = {
@@ -550,18 +581,20 @@
     Settings.setupUI($robinVoteWidget);
     var settings = Settings.load();
     var userExtra = UserExtra.load();
-    startSaveUserExtra();
+    startUserExtra();
 
     function tryStoreUserExtra(){
 
-	console.log("storing lastseens");
+	//console.log("storing lastseens");
 	UserExtra.save(userExtra);
     }
 
     var userExtraInterval = 0;
 
-    function startSaveUserExtra() {
-        userExtraInterval = setInterval(tryStoreUserExtra, 60*1000*5);
+    function startUserExtra() {
+
+        userExtraInterval = setInterval(listAllUsers, 10*1000);
+        userExtraInterval = setInterval(tryStoreUserExtra, 20*1000);
     }
     // bootstrap
     tryHide();
@@ -581,6 +614,7 @@
     Settings.addBool("alignment", "Right align usernames", true);
     Settings.addInput("username_bg", "Custom background color on usernames", "");
 
+    Settings.addBool("removeRobinMessages", "Hide [robin] messages everywhere", false, setRobinMessageVisibility);
     Settings.addBool("removeChanMessageFromGlobal", "Hide channel messages in Global", false);
     Settings.addBool("filterChannel", "Hide non-channel messages in Global", false, function() { buildDropdown(); });
     Settings.addInput("channel", "<label>Channel Listing<ul><li>Multi-room-listening with comma-separated rooms</li><li>Names are case-insensitive</li><li>Spaces are NOT stripped</li></ul></label>", "%parrot", function() { buildDropdown(); resetChannels(); });
@@ -612,6 +646,9 @@
     $("#blockedUserContainer").append("<div id='blockedUserList' class='robin-chat--sidebar-widget robin-chat--user-list-widget'></div>");
 
     $("#settingContent").append('<div class="robin-chat--sidebar-widget robin-chat--report" style="text-align:center;"><a target="_blank" href="https://www.reddit.com/r/parrot_script/">parrot' + versionString + '</a></div>');
+
+    $('head').append('<style id="robinMessageVisiblity"></style>');
+    setRobinMessageVisibility();
     // Options end
     // Settings end
 
@@ -797,17 +834,18 @@
 
             var maxprune = parseInt(settings.maxprune || "1000", 10);
 
-	    if ( maxprune <= 0){
-		maxprune = 1;
-
-	    }
             if (isNaN(maxprune)) {
                 maxprune = 1000;
             }
 
+	    if ( maxprune <= 0){
+		maxprune = 1;
+
+	    }
+
 	    //console.log("maxprune:  " + maxprune + "  Messages.length: " + $messages.length + " len: " + len) ;
 
-	    
+
 
             if ($messages.length > maxprune) {
                 $messages.slice(0, $messages.length - maxprune).remove();
@@ -942,6 +980,66 @@
         listMutedUsers();
     }, 1500);
 
+
+    function listAllUsers() {
+
+	var actives = Object.keys(userExtra).map(function(key) {
+
+	    //console.log("key: " + key + " val: " + userExtra[key]);
+	    return [key, userExtra[key]];
+
+	});
+
+	// Sort the array based on the second element
+	 actives = actives.sort(function(first, second) {
+	    //console.log(first[1] + "   is <    " +  second[1]);
+	    //console.log(second[1] >= first[1]);
+	    return second[1] - first[1];
+
+	});
+
+
+	var options = {
+		month: "2-digit",
+		 day: "2-digit", hour: "2-digit", minute: "2-digit"
+	};
+
+	//console.log(actives);
+
+        $("#robinUserList").html("");
+
+        $.each(actives, function(index,userpair){
+
+            var mutedHere = "present";
+
+            var userInArray = $.grep(list, function(e) {
+                return e.name === userpair[0];
+            });
+
+            if (userInArray && userInArray.length > 0 && userInArray[0].present === true) {
+                mutedHere = "present";
+            } else {
+                mutedHere = "away";
+            }
+
+            var votestyle = userInArray && userInArray.length > 0 ?
+                " robin--vote-class--" + userInArray[0].vote.toLowerCase()
+                : "";
+
+
+	    var datestring = userpair[1].toLocaleTimeString("en-us", options);
+
+
+            $("#robinUserList").append(
+                $("<div class='robin-room-participant robin--user-class--user robin--presence-class--" + mutedHere + votestyle + "'></div>")
+                .append("<span class='robin--icon'></span><span class='robin--username' style='color:" + colorFromName(userpair[0]) + "'>" + userpair[0] + "</span>" + "<span class=\"robin-message--message\"style=\"font-size: 10px;\"> &nbsp;" + datestring + "</span>")
+            );
+        });
+
+    //updateUserPanel();
+
+    }
+
     //colored text thanks to OrangeredStilton! https://gist.github.com/Two9A/3f33ee6f6daf6a14c1cc3f18f276dacd
     var colors = ['rgba(255,0,0,0.1)','rgba(0,255,0,0.1)','rgba(0,0,255,0.1)', 'rgba(0,255,255,0.1)','rgba(255,0,255,0.1)', 'rgba(255,255,0,0.1)'];
 
@@ -998,6 +1096,9 @@
 
         // Add rooms
         resetChannels();
+
+        // Restore the selected channel in the url
+        if (channelList[window.location.hash.charAt(8)]) selectChannel(window.location.hash);
     }
 
     function resetChannels()
@@ -1177,9 +1278,24 @@
         return dropdownChannel();
     }
 
-    function updateTextCounter()
+    function updateTextCounter(chanPrefix)
     {
-        $("#textCounterDisplayAlt").text(String(Math.max(140 - Math.floor($("#robinMessageText").val().length), 0)));
+        var maxLength = 140;
+
+        var $robinMessageText = $("#robinMessageText");
+        var completeMessage = $robinMessageText.val();
+
+        // small channel names with a full message body switched to a long channel name
+        // cause robinMessageText to overflow out of bounds
+        // this truncates the message to the limit
+        if (completeMessage.length > maxLength) {
+            completeMessage = completeMessage.substr(0, maxLength);
+            $robinMessageText.val(completeMessage);
+        }
+
+        // subtract the channel prefix from the maxLength
+        $("#robinMessageTextAlt").attr('maxLength', maxLength - chanPrefix.length);
+        $("#textCounterDisplayAlt").text(String(Math.max(maxLength - completeMessage.length), 0));
     }
 
     //
@@ -1201,7 +1317,7 @@
         else
             dest.val(chanPrefix + source);
 
-        updateTextCounter();
+        updateTextCounter(chanPrefix);
     }
 
     var pastMessageQueue = [];
@@ -1236,8 +1352,8 @@
 
     function onMessageBoxKeyUp(e)
     {
-        var key = e.keyCode ? e.keyCode : e.charCode
-	key = key || e.which;
+        var key = e.keyCode ? e.keyCode : e.charCode;
+        key = key || e.which;
 
         if (key != 9 && key != 38 && key != 40)
             return;
@@ -1252,7 +1368,7 @@
         var namePart = "";
 
         // Tab - Auto Complete
-        if (settings.enableTabComplete && key == 9 && source.toLowerCase().startsWith(chanName.toLowerCase())) {
+        if (settings.enableTabComplete && key == 9 && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey && source.toLowerCase().startsWith(chanName.toLowerCase()) && sourceAlt !== '') {
             sourceAlt = source.substring(chanName.length).trim();
             var space=sourceAlt.lastIndexOf(" ");
             namePart = sourceAlt.substring(space).trim();
@@ -1332,13 +1448,9 @@
                 var $message = $(jq[0]).find('.robin-message--message');
                 var messageText = $message.text();
 
-		var options = {
-   			month: "2-digit",
-    			 day: "2-digit", hour: "2-digit", minute: "2-digit"
-		};
-		datestring = new Date().toLocaleTimeString("en-us", options);
-		userExtra[$user.text()] = datestring;
-		updateUserPanel();
+		datenow = new Date();
+		userExtra[$user.text()] = datenow;
+		//updateUserPanel();
 
                 var exclude_list = String(settings.channel_exclude).split(",");
                 var results_chan_exclusion = hasChannelFromList(messageText, exclude_list, true);
@@ -1458,24 +1570,23 @@
             }
         });
     }
-    function countTimer(){
-        counter+=0.5;
-        if(countdown%1==0 && countdown !=0){
+    function countTimer() {
+        counter += 0.5;
+        if (countdown % 1 == 0 && countdown != 0) {
             $('#sendBtn').css('background-color', '#FF5555');
-        }else{
-            $('#sendBtn').css('background-color', 'white');
+        } else {
+            $('#sendBtn').css('background-color', '');
         }
-        if(countdown>1){
-            countdown-=0.5;
-            $('#sendBtn').html("Chat in: "+parseInt(countdown));
-        }else if(countdown==1){
+        if (countdown > 1 ) {
+            countdown -= 0.5;
+            $('#sendBtn').html("Chat in: " + parseInt(countdown));
+        } else if (countdown == 1) {
             $('#sendBtn').html("Send Message");
-
-            countdown=0;
+            countdown = 0;
         }
 
     }
-	
+
     setInterval(update, 10000);
     update();
 
