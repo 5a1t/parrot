@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @version      3.62
 // @description  Recreate Slack on top of an 8 day Reddit project.
-// @author       dashed, voltaek, daegalus, vvvv, orangeredstilton, lost_penguin, AviN456, Annon201
+// @author       dashed, voltaek, daegalus, vvvv, orangeredstilton, lost_penguin, AviN456, Annon201, LTAcosta, mofosyne
 // @include      https://www.reddit.com/robin*
 // @updateURL    https://github.com/5a1t/parrot/raw/master/robin.user.js
 // @require       http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js
@@ -555,10 +555,10 @@
         // Sort the channels
         var channels = [];
         for(var channel in activeChannelsCounts){
-			if (activeChannelsCounts[channel] > 1){
-				channels.push(channel);
-			}
-		}
+            if (activeChannelsCounts[channel] > 1){
+                channels.push(channel);
+            }
+        }
             
         channels.sort(function(a,b) {return activeChannelsCounts[a] - activeChannelsCounts[b];});
         
@@ -1454,7 +1454,7 @@
         if (!chanName.match(/^[!"#$%&\\'()\*+,\-\.\/:;<=>?@\[\]\^_`{|}~]/))
             return;
         
-        var index = chanName.indexOf("em:");
+        var index = chanName.indexOf("<Crypto>");
         if (index >= 0)
             chanName = chanName.substring(0, index);
         
@@ -1515,7 +1515,6 @@
                 var thisUser = $user.text();
                 var $message = $(jq[0]).find('.robin-message--message');
                 var messageText = $message.text();
-                updateMostActiveChannels(messageText);
 
                 // Decryption
                 var chanName = hasChannel(messageText).name;
@@ -1547,6 +1546,14 @@
                         messageText = $message.text();
                     }
                 }
+                
+                var is_muted = (thisUser && mutedList.indexOf(thisUser) >= 0);
+                var is_spam = (settings.removeSpam && isBotSpam(messageText));
+                var remove_message = is_muted || is_spam;
+                
+                if (!remove_message) {
+                    updateMostActiveChannels(messageText);
+                }
 
                 datenow = new Date();
                 userExtra[$user.text()] = datenow;
@@ -1575,12 +1582,8 @@
                 stylecalc = stylecalc +  'Consolas, "Lucida Console", Monaco, monospace';
                 $user.css("font-family", stylecalc).css("font-size", settings.fontsize+"px");
                 $message.css("font-family", stylecalc).css("font-size", settings.fontsize+"px");
-
-                var is_muted = (thisUser && mutedList.indexOf(thisUser) >= 0);
-                var is_spam = (settings.removeSpam && isBotSpam(messageText));
+                
                 var results_chan = hasChannel(messageText);
-
-                var remove_message = is_muted || is_spam;
 
                 var nextIsRepeat = jq.hasClass('robin--user-class--system') && messageText.indexOf("try again") >= 0;
                 if (nextIsRepeat) {
