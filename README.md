@@ -2,6 +2,9 @@
 
 #SO LONG AND THANKS FOR ALL THE MEMORIES!
 
+![](wedidit.png)
+
+------
 
 [![Join the chat at https://gitter.im/5a1t/parrot](https://badges.gitter.im/5a1t/parrot.svg)](https://gitter.im/5a1t/parrot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
