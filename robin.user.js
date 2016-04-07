@@ -430,6 +430,13 @@
         settings.sidebarPosition ? elements.chat.before(sidebars) : elements.chat.after(sidebars);
     }
 
+    function toggleTableMode(setting) {
+        settings = settings || setting;
+        if (settings.tableMode)
+          $('.robin-chat--message-list').addClass('robin-chat--message-list-table-mode');
+        else $('.robin-chat--message-list').removeClass('robin-chat--message-list-table-mode');
+    }
+
     function grabStandings() {
         var standings;
 
@@ -648,6 +655,8 @@
     Settings.addBool("force_scroll", "Force scroll to bottom", false);
     Settings.addInput("cipherkey", "16 Character Cipher Key", "Example128BitKey");
     Settings.addInput("maxprune", "Max messages before pruning", "500");
+    
+    Settings.addBool("tableMode", "Toggle table-mode for the message list", false, toggleTableMode);
     Settings.addInput("fontsize", "Chat font size", "12");
     Settings.addInput("fontstyle", "Font Style (default Consolas)", "");
     Settings.addBool("alignment", "Right align usernames", true);
@@ -1139,6 +1148,7 @@
             tab.on("click", function() { selectChannel($(this).attr("href")); });
         }
 
+        toggleTableMode();
         selectChannel("");
     }
 
@@ -1571,10 +1581,13 @@
                 if (String(settings['username_bg']).length > 0) {
                     $user.css("background",  String(settings['username_bg']));
                 }
+                if (settings['tableMode'] && settings['alignment']) {
+                    $user.addClass('robin--username-align-right');
+                }
 
                 var alignedUser = settings['alignment'] ? $user.html().lpad('&nbsp;', 20) : $user.html().rpad('&nbsp;', 20);
 
-                $user.html(alignedUser);
+                $user.html( (!settings['tableMode'] ? alignedUser : $user.html()) );
                 var stylecalc = "";
                 if (settings.fontstyle !== ""){
                     stylecalc = '"'+settings.fontstyle.trim()+'"' + ",";
@@ -1652,7 +1665,9 @@
                 if (!results_chan.has || !settings.removeChanMessageFromGlobal)
                     markChannelChanged(-1);
 
-                if (!settings.removeChanMessageFromGlobal)
+                // If user is [robin], then we should only add the channel prefix if we're in
+                // the Global channel.
+                if (!settings.removeChanMessageFromGlobal && (thisUser.indexOf("[robin]") ==-1 || selectedChannel == -1))
                 {
                     if (results_chan.has) {
                         messageText = messageText.substring(results_chan.name.length).trim();
@@ -1662,7 +1677,7 @@
                     // This needs to be done after any changes to the $message.text() since they will overwrite $message.html() changes
                     convertTextToSpecial(messageText, jq[0]);
 
-                    $("<span class='robin-message--from'><strong>" + results_chan.name.lpad("&nbsp", 6) + "</strong></span>").css("font-family", '"Lucida Console", Monaco, monospace')
+                    $("<span class='robin-message--from'><strong>" + (!settings.tableMode ? results_chan.name.lpad("&nbsp", 6) : results_chan.name ) + "</strong></span>").css("font-family", '"Lucida Console", Monaco, monospace')
                         .css("font-size", "12px")
                         .insertAfter($timestamp);
                 }
@@ -1922,6 +1937,9 @@
             }
         }
     })();
+    
+// Add blank channel to initial system messages to avoid messing up the table view
+$('.robin--user-class--system time').after('<span class="robin-message--from"></span>');
 
     GM_addStyle(" \
         .robin--username { \
@@ -2161,6 +2179,24 @@
             background-color: white; \
             font-weight: bold; \
             padding: 0.7em 0.3em 0.38em 0.3em; \
+        } \
+        .robin-chat .robin-chat--message-list.robin-chat--message-list-table-mode { \
+            display: table; \
+        } \
+        .robin-chat--message-list-table-mode .robin-message { \
+            display: table-row !important; \
+        } \
+        .robin-chat--message-list-table-mode time, .robin-chat--message-list-table-mode .robin-message span { \
+            display: table-cell !important; \
+            padding: 0 5px; \
+        } \
+        .robin-chat--message-list-table-mode .robin-message time, .robin-chat--message-list-table-mode .robin-message .robin-message--from { \
+            white-space: nowrap; \
+            word-break: normal; \
+            word-wrap: normal; \
+        } \
+        .robin-chat--message-list-table-mode .robin--username-align-right { \
+            text-align: right; \
         } \
     ");
 })();
