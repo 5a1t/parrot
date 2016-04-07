@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         parrot (color multichat for robin!)
 // @namespace    http://tampermonkey.net/
-// @version      3.31
+// @version      3.38
 // @description  Recreate Slack on top of an 8 day Reddit project.
 // @author       dashed, voltaek, daegalus, vvvv, orangeredstilton, lost_penguin, AviN456, Annon201
 // @include      https://www.reddit.com/robin*
@@ -91,11 +91,18 @@
     }
 
     function updateUserPanel(){
+
+	var options = {
+		month: "2-digit",
+		 day: "2-digit", hour: "2-digit", minute: "2-digit"
+	};
+
 	$(".robin-room-participant").each( function(){
 		lastseen = userExtra[$(this).find(".robin--username").text().trim()];
 		if(lastseen){
+			datestring = lastseen.toLocaleTimeString("en-us", options);
 			$( this ).find(".robin--username").nextAll().remove();
-			$( this ).find(".robin--username").after("<span class=\"robin-message--message\"style=\"font-size: 10px;\"> &nbsp;" + lastseen + "</span>");
+			$( this ).find(".robin--username").after("<span class=\"robin-message--message\"style=\"font-size: 10px;\"> &nbsp;" + datestring + "</span>");
 		}
 	});
 
@@ -200,18 +207,34 @@
 
         load: function loadSetting() {
             var userExtra = localStorage.getItem('parrot-user-extra');
+            var users_version = localStorage.getItem('parrot-user-version');
 
             try {
                 userExtra = userExtra ? JSON.parse(userExtra) : {};
-            } catch(e) {}
+            } catch(e) { console.log("Error parsing userExtra..");}
+
 
             userExtra = userExtra || {};
 
-            return userExtra;
+		if(users_version == 12){
+			console.log("found a good user list!");
+            		//return userExtra;
+			//JSON.stringify is returning undefined.. Reset list each time for now. Will fix.
+			return {};
+		}
+		else{
+			console.log("found a bad user list, resetting!");
+            		localStorage.setItem('parrot-user-extra', JSON.stringify({}));
+	      		return {};
+		}
         },
 
         save: function saveSetting(userExtra) {
+	    console.log("Saving");
+            //console.log(userExtra);
+	    //console.log(JSON.stringify(userExtra));
             localStorage.setItem('parrot-user-extra', JSON.stringify(userExtra));
+            localStorage.setItem('parrot-user-version', 12);
         }
 
 
@@ -550,7 +573,7 @@
     Settings.setupUI($robinVoteWidget);
     var settings = Settings.load();
     var userExtra = UserExtra.load();
-    startSaveUserExtra();
+    startUserExtra();
 
     function tryStoreUserExtra(){
 
@@ -560,8 +583,10 @@
 
     var userExtraInterval = 0;
 
-    function startSaveUserExtra() {
-        userExtraInterval = setInterval(tryStoreUserExtra, 60*1000*5);
+    function startUserExtra() {
+
+        userExtraInterval = setInterval(listAllUsers, 10*1000);
+        userExtraInterval = setInterval(tryStoreUserExtra, 20*1000);
     }
     // bootstrap
     tryHide();
@@ -942,6 +967,53 @@
     setTimeout(function() {
         listMutedUsers();
     }, 1500);
+
+
+    function listAllUsers() {
+
+	var actives = Object.keys(userExtra).map(function(key) {
+
+	    //console.log("key: " + key + " val: " + userExtra[key]);
+	    return [key, userExtra[key]];
+
+	});
+
+	// Sort the array based on the second element
+	actives.sort(function(first, second) {
+	    return second[1] >=  first[1];
+	});	
+
+	//console.log(actives);
+
+        $("#robinUserList").html("");
+
+        $.each(actives, function(index,userpair){
+
+            var mutedHere = "present";
+
+            var userInArray = $.grep(list, function(e) {
+                return e.name === userpair[0];
+            });
+
+            if (userInArray && userInArray.length > 0 && userInArray[0].present === true) {
+                mutedHere = "present";
+            } else {
+                mutedHere = "away";
+            }
+
+            var votestyle = userInArray && userInArray.length > 0 ?
+                " robin--vote-class--" + userInArray[0].vote.toLowerCase()
+                : "";
+		
+	    
+            $("#robinUserList").append(
+                $("<div class='robin-room-participant robin--user-class--user robin--presence-class--" + mutedHere + votestyle + "'></div>")
+                .append("<span class='robin--icon'></span><span class='robin--username' style='color:" + colorFromName(userpair[0]) + "'>" + userpair[0] + "</span>")
+            );
+        });
+
+    updateUserPanel();
+    }
 
     //colored text thanks to OrangeredStilton! https://gist.github.com/Two9A/3f33ee6f6daf6a14c1cc3f18f276dacd
     var colors = ['rgba(255,0,0,0.1)','rgba(0,255,0,0.1)','rgba(0,0,255,0.1)', 'rgba(0,255,255,0.1)','rgba(255,0,255,0.1)', 'rgba(255,255,0,0.1)'];
@@ -1336,13 +1408,9 @@
                 var $message = $(jq[0]).find('.robin-message--message');
                 var messageText = $message.text();
 
-		var options = {
-   			month: "2-digit",
-    			 day: "2-digit", hour: "2-digit", minute: "2-digit"
-		};
-		datestring = new Date().toLocaleTimeString("en-us", options);
-		userExtra[$user.text()] = datestring;
-		updateUserPanel();
+		datenow = new Date();
+		userExtra[$user.text()] = datenow;
+		//updateUserPanel();
 
                 var exclude_list = String(settings.channel_exclude).split(",");
                 var results_chan_exclusion = hasChannelFromList(messageText, exclude_list, true);
