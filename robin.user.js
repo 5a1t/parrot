@@ -1438,7 +1438,7 @@
                 var thisUser = $user.text();
                 var $message = $(jq[0]).find('.robin-message--message');
                 var messageText = $message.text();
-
+                
                 // Channel Discovery - /u/mofosyne
                 var tokenisedMsg = messageText.split(" ");
                 var channelName = tokenisedMsg[0];
@@ -1446,6 +1446,10 @@
                 var channelNameRegExp = new RegExp("^([!@#$%\^&*()]+)(.?)+$");
                 if( channelNameRegExp.test(channelName) && channelName != ""){
                     channelDiscoveryList.push(channelName); // This push it to our 'history log' of potential channel names
+                    // To avoid killing the ram, we should pop old entries after it reaches 100
+                    if (channelDiscoveryList.length > 100){
+                        channelDiscoveryList.shift();
+                    }
                     // Find most common channel name http://stackoverflow.com/questions/16742726/sorting-an-array-of-data-on-frequency-of-occurence
                     function orderByOccurrence(arr) {
                         var counts = {};
