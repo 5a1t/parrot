@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         parrot (color multichat for robin!)
 // @namespace    http://tampermonkey.net/
-// @version      3.40
+// @version      3.41
 // @description  Recreate Slack on top of an 8 day Reddit project.
 // @author       dashed, voltaek, daegalus, vvvv, orangeredstilton, lost_penguin, AviN456, Annon201
 // @include      https://www.reddit.com/robin*
@@ -995,8 +995,8 @@
 	    //console.log(first[1] + "   is <    " +  second[1]);
 	    //console.log(second[1] >= first[1]);
 	    return second[1] - first[1];
-	    
-	});	
+
+	});
 
 
 	var options = {
