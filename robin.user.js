@@ -1469,6 +1469,10 @@
         var index = chanName.indexOf("<Crypto>");
         if (index >= 0)
             chanName = chanName.substring(0, index);
+        
+        index = chanName.indexOf("em:");
+        if (index >= 0)
+            chanName = chanName.substring(0, index);
 
         index = chanName.indexOf(" ");
         if (index >= 0)
