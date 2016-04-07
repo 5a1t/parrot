@@ -218,12 +218,12 @@
     var Settings = {
         setupUI: function() {
             // Open Settings button
-            $robinVoteWidget.prepend("<div class='addon'><div id='chatstats' class='robin-chat--vote'></div></div>");
-            $robinVoteWidget.prepend("<div class='addon'><div class='usercount robin-chat--vote'></div></div>");
-            $robinVoteWidget.prepend("<div class='addon'><div class='timeleft robin-chat--vote'></div></div>");
+            $robinVoteWidget.prepend("<div class='addon'><div id='chatstats' class='robin-chat--vote info-box-only'></div></div>");
+            $robinVoteWidget.prepend("<div class='addon'><div class='usercount robin-chat--vote info-box-only'></div></div>");
+            $robinVoteWidget.prepend("<div class='addon'><div class='timeleft robin-chat--vote info-box-only'></div></div>");
             $robinVoteWidget.prepend('<div class="addon" id="openBtn_wrap"><div class="robin-chat--vote" id="openBtn">Open Settings</div></div>');
             $robinVoteWidget.append('<div class="addon"><div class="robin-chat--vote" id="standingsBtn">Show Standings</div></div>');
-            $("#openBtn_wrap").prepend('<div class="robin-chat--sidebar-widget robin-chat--report">' +
+            $("#openBtn_wrap").prepend('<div class="robin-chat--sidebar-widget">' +
                 '<a target="_blank" href="https://www.reddit.com/r/parrot_script/"><div class="robin-chat--vote">' +
                 '<img src="https://i.imgur.com/ch75qF2.png">Parrot</div><p>soKukunelits fork ~ ' + versionString + '</p></a></div>');
 
@@ -235,8 +235,6 @@
                     '</div>' +
                 '</div>'
             );
-
-            $("#robinSendMessage").prepend('<div id="chat-prepend-area"><label>Send chat to</span><select id="chat-prepend-select"></select></div>');
 
             // Standing container
             $("#settingContainer").before(
@@ -287,6 +285,8 @@
                 $("#settingContainer").hide();
             });
 
+            $("#robinSendMessage").prepend('<div id="chat-prepend-area"><label>Send chat to</span><select id="chat-prepend-select"></select></div>');
+
             function setVote(vote) {
                 return function() {
                     settings.vote = vote;
@@ -299,8 +299,6 @@
             $(".robin-chat--vote.robin--vote-class--increase").on("click", setVote("grow"));
 
             $('.robin-chat--buttons').prepend("<div class='robin-chat--vote robin--vote-class--novote'><span class='robin--icon'></span><div class='robin-chat--vote-label'></div></div>");
-            $robinVoteWidget.find('.robin-chat--vote').css('padding', '5px');
-            $('.robin--vote-class--novote').css('pointer-events', 'none');
         },
 
         load: function loadSetting() {
@@ -1770,11 +1768,15 @@ GM_addStyle(" \
     #settingContent { \
         overflow-y: scroll; \
     } \
-    #robinVoteWidget { \
+    #robinVoteWidget, \
+    #closeBtn { \
         font-weight: bold; \
     } \
     .robin-chat--sidebar .robin-chat--vote { \
         margin-left: 0; \
+    } \
+    .info-box-only, \
+    .robin--vote-class--novote { \
         pointer-events: none; \
     } \
     #openBtn, \
@@ -1784,16 +1786,15 @@ GM_addStyle(" \
         cursor: pointer; \
     } \
     #openBtn_wrap { \
-        padding-top: -10px; \
         text-align: center; \
     } \
-    #openBtn_wrap > div { \
+    #openBtn_wrap > div:first-child { \
         padding-top: 0; \
     } \
-    #openBtn_wrap > p { \
+    #openBtn_wrap p { \
         font-size: 12px; \
     } \
-    #openBtn_wrap > img { \
+    #openBtn_wrap img { \
         display:inline-block; \
         vertical-align:middle; \
         width:15px; \
@@ -1831,7 +1832,6 @@ GM_addStyle(" \
     } \
     #chatstats { \
         font-weight:bold; \
-        pointer-events:none; \
     } \
  \
     /* Change font to fixed-width */ \
@@ -1933,7 +1933,7 @@ GM_addStyle(" \
     #standingsTable table th { \
         font-weight: bold; \
     } \
-    standingsTable > div:first-child { \
+    #standingsTable > div:first-child { \
         font-weight: bold; \
         text-align: center; \
     } \
