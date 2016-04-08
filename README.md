@@ -83,7 +83,7 @@ https://www.reddit.com/r/parrot_script/
     3.0: Suprise :) (lajiggyjarjardoo). 
     3.1: Full  monstrous standings table. Settings cleanup (lost_penguin). Fix remaining time.
     3.2: Rate timer is now more noticiable (mrspicyweiner). Fixed channel and autocomplete bugs.
-    3.3: Changed the chat to use table formatting on message list (Johan) - or maybe not.
+    3.3: Added an option to use table formatting on message list (notmythriz).
     3.4: FREAKING ENCRYPTION MAN (mrspicyweiner). Hover panel for PMs (5alt). 
 
 ## Screenshots
